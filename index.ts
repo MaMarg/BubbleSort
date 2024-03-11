@@ -25,8 +25,3 @@ class BubbleSortVaraints {
         } while (swapped);
     }
 }
-
-let a = [4, 3, 2, 6, 8, 4]
-let b = new BubbleSortVaraints()
-b.bubbleSortShort(a)
-console.log(a)
