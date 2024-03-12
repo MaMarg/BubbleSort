@@ -1,5 +1,5 @@
 class BubbleSortVaraints {
-    bubleSortFull(list: Array<number>) {
+    bubleSortFull(list: Array<number>): void {
         let listLength: number = list.length
         for (let i: number = listLength; i > 1; i--) {
             for (let j: number = 0; j < listLength - 1; j++) {
@@ -10,7 +10,7 @@ class BubbleSortVaraints {
         }
     }
 
-    bubbleSortShort(list: Array<number>) {
+    bubbleSortShort(list: Array<number>): void {
         let listLength: number = list.length
         let swapped: boolean
         do {
