@@ -1,16 +1,38 @@
 var BubbleSortVaraints = /** @class */ (function () {
     function BubbleSortVaraints() {
-    }
-    BubbleSortVaraints.prototype.bubleSortFull = function (list) {
-        var _a;
-        var listLength = list.length;
-        for (var i = listLength; i > 1; i--) {
-            for (var j = 0; j < listLength - 1; j++) {
-                if (list[j] > list[j + 1]) {
-                    _a = [list[j + 1], list[j]], list[j] = _a[0], list[j + 1] = _a[1];
-                }
+        /*let listLength = list.length;
+    for (let i = listLength; i > 1; i--) {
+        for (let j = 0; j < listLength - 1; j++) {
+            if (list[j] > list[j + 1]) {
+                [list[j], list[j + 1]] = [list[j + 1], list[j]];
+                canvasData.drawSticks(list);
             }
         }
+    }*/
+        this.sorting = false;
+    }
+    BubbleSortVaraints.prototype.bubbleSortFull = function (list) {
+        if (!this.sorting)
+            return;
+        function bubbleSortPass(i) {
+            if (list[i] > list[i + 1]) {
+                var tempPos = list[i];
+                list[i] = list[i + 1];
+                list[i + 1] = tempPos;
+                canvasData.drawSticks(list);
+            }
+            if (i < list.length) {
+                setTimeout(function () {
+                    bubbleSortPass(i + 1);
+                }, 50);
+            }
+            else if (i >= list.length) {
+                setTimeout(function () {
+                    bubbleSortVariants.bubbleSortFull(list);
+                }, 50);
+            }
+        }
+        bubbleSortPass(0);
     };
     BubbleSortVaraints.prototype.bubbleSortShort = function (list) {
         var _a;
@@ -36,7 +58,6 @@ var Canvas = /** @class */ (function () {
         this.stickWidth = 10;
         this.stickMaxLength = 10;
         this.stickPadding = 2;
-        this.predefinedList = [3, 10, 4, 2, 9, 5, 6, 8, 7, 1];
     }
     Canvas.prototype.shuffleList = function (list) {
         var currentIndex = list.length, temporaryValue, randomIndex;
@@ -48,11 +69,11 @@ var Canvas = /** @class */ (function () {
             list[randomIndex] = temporaryValue;
         }
     };
-    Canvas.prototype.drawSticks = function () {
+    Canvas.prototype.drawSticks = function (list) {
         this.canvasContext.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        for (var i = 0; i < this.predefinedList.length; i++) {
+        for (var i = 0; i < list.length; i++) {
             var stickX = (i * (this.stickWidth + this.stickPadding));
-            var lengthExtender = this.predefinedList[i] * 20;
+            var lengthExtender = list[i] * 10;
             var stickLength = (this.stickMaxLength + lengthExtender);
             this.canvasContext.beginPath();
             this.canvasContext.rect((stickX + this.stickPadding), (298 - stickLength), this.stickWidth, stickLength);
@@ -60,16 +81,19 @@ var Canvas = /** @class */ (function () {
             this.canvasContext.fill();
             this.canvasContext.closePath();
         }
-        this.shuffleList(this.predefinedList);
     };
     return Canvas;
 }());
 var bubbleSortVariants = new BubbleSortVaraints();
 var canvasData = new Canvas();
+var list = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
 document.getElementById("generate-list").onclick = function () {
-    canvasData.drawSticks();
+    canvasData.shuffleList(list);
+    canvasData.drawSticks(list);
 };
-document.getElementById("start-sorting").onclick = function () {
-    bubbleSortVariants.bubleSortFull(canvasData.predefinedList);
-    canvasData.drawSticks();
+document.getElementById("play_or_pause-sorting").onclick = function () {
+    bubbleSortVariants.sorting = !bubbleSortVariants.sorting;
+    if (bubbleSortVariants.sorting) {
+        bubbleSortVariants.bubbleSortFull(list);
+    }
 };
