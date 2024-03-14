@@ -1,3 +1,5 @@
+let currentStep = 0;
+
 class BubbleSortVaraints {
 
     /*let listLength = list.length;
@@ -9,23 +11,40 @@ for (let i = listLength; i > 1; i--) {
         }
     }
 }*/
-    sorting = false
+    //sorting true heißt es sortiert gerade
+    sorting = false;
 
     bubbleSortFull(list: Array<number>) {
+        // interrupts the outer loop if sorting is false
+        let sorting = this.sorting
         if (!this.sorting) return
 
         function bubbleSortPass(i: number) {
+            // stop at current step
+            if (!sorting){
+                currentStep = i
+                console.log("stopped")
+                return
+            } 
+
+            /* der eigentliche algorithmus
+            wenn der aktuelle größer ist als der folgende wird gewechselt
+            dadurch ist ganz rechts am ende der größte*/
+            currentStep = i;
             if (list[i] > list[i + 1]) {
                 let tempPos = list[i];
                 list[i] = list[i + 1];
                 list[i + 1] = tempPos;
+                //nachdem geswechselt wurde, neu zeichnen
                 canvasData.drawSticks(list);
             }
 
+            //wenn noch nicht am ende der liste -> function neu aufrufen mit nächster position
             if (i < list.length) {
                 setTimeout(function () {
                     bubbleSortPass(i + 1);
-                }, 50);
+                }, 100);
+            //wenn am ende der liste mache einen neuen pass
             } else if (i >= list.length) {
                 setTimeout(function () {
                     bubbleSortVariants.bubbleSortFull(list);
@@ -55,7 +74,7 @@ for (let i = listLength; i > 1; i--) {
 class Canvas {
     canvas = document.getElementById("canvas-bubblesort") as HTMLCanvasElement
     canvasContext = this.canvas.getContext("2d")
-    stickWidth = 10
+    stickWidth = 20
     stickMaxLength = 10
     stickPadding = 2
 
@@ -81,7 +100,11 @@ class Canvas {
             let stickLength = (this.stickMaxLength + lengthExtender)
             this.canvasContext.beginPath()
             this.canvasContext.rect((stickX + this.stickPadding), (298 - stickLength), this.stickWidth, stickLength)
-            this.canvasContext.fillStyle = "#808080"
+            if (i == currentStep || i - 1 == currentStep){
+                this.canvasContext.fillStyle = "#801010"
+            } else {
+                this.canvasContext.fillStyle = "#808080"
+            }
             this.canvasContext.fill()
             this.canvasContext.closePath()
         }

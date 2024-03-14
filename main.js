@@ -1,3 +1,4 @@
+var currentStep = 0;
 var BubbleSortVaraints = /** @class */ (function () {
     function BubbleSortVaraints() {
         /*let listLength = list.length;
@@ -9,22 +10,38 @@ var BubbleSortVaraints = /** @class */ (function () {
             }
         }
     }*/
+        //sorting true heißt es sortiert gerade
         this.sorting = false;
     }
     BubbleSortVaraints.prototype.bubbleSortFull = function (list) {
+        // interrupts the outer loop if sorting is false
+        var sorting = this.sorting;
         if (!this.sorting)
             return;
         function bubbleSortPass(i) {
+            // stop at current step
+            if (!sorting) {
+                currentStep = i;
+                console.log("stopped");
+                return;
+            }
+            /* der eigentliche algorithmus
+            wenn der aktuelle größer ist als der folgende wird gewechselt
+            dadurch ist ganz rechts am ende der größte*/
+            currentStep = i;
             if (list[i] > list[i + 1]) {
                 var tempPos = list[i];
                 list[i] = list[i + 1];
                 list[i + 1] = tempPos;
+                //nachdem geswechselt wurde, neu zeichnen
                 canvasData.drawSticks(list);
             }
+            //wenn noch nicht am ende der liste -> function neu aufrufen mit nächster position
             if (i < list.length) {
                 setTimeout(function () {
                     bubbleSortPass(i + 1);
-                }, 50);
+                }, 100);
+                //wenn am ende der liste mache einen neuen pass
             }
             else if (i >= list.length) {
                 setTimeout(function () {
@@ -55,7 +72,7 @@ var Canvas = /** @class */ (function () {
     function Canvas() {
         this.canvas = document.getElementById("canvas-bubblesort");
         this.canvasContext = this.canvas.getContext("2d");
-        this.stickWidth = 10;
+        this.stickWidth = 20;
         this.stickMaxLength = 10;
         this.stickPadding = 2;
     }
@@ -77,7 +94,12 @@ var Canvas = /** @class */ (function () {
             var stickLength = (this.stickMaxLength + lengthExtender);
             this.canvasContext.beginPath();
             this.canvasContext.rect((stickX + this.stickPadding), (298 - stickLength), this.stickWidth, stickLength);
-            this.canvasContext.fillStyle = "#808080";
+            if (i == currentStep || i - 1 == currentStep) {
+                this.canvasContext.fillStyle = "#801010";
+            }
+            else {
+                this.canvasContext.fillStyle = "#808080";
+            }
             this.canvasContext.fill();
             this.canvasContext.closePath();
         }
