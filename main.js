@@ -2,16 +2,6 @@ var currentStep = 0;
 var amountPasses = 0;
 var BubbleSortVaraints = /** @class */ (function () {
     function BubbleSortVaraints() {
-        /*let listLength = list.length;
-    for (let i = listLength; i > 1; i--) {
-        for (let j = 0; j < listLength - 1; j++) {
-            if (list[j] > list[j + 1]) {
-                [list[j], list[j + 1]] = [list[j + 1], list[j]];
-                canvasData.drawSticks(list);
-            }
-        }
-    }*/
-        //sorting true heißt es sortiert gerade
         this.sorting = false;
     }
     BubbleSortVaraints.prototype.bubbleSortFull = function (list) {
@@ -127,16 +117,26 @@ var Canvas = /** @class */ (function () {
 }());
 var bubbleSortVariants = new BubbleSortVaraints();
 var canvasData = new Canvas();
-var list = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
+var list = [20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1];
+var chosePredefindedList;
+var myList;
 document.getElementById("generate-list").onclick = function () {
     bubbleSortVariants.sorting = false;
     currentStep = 0;
     canvasData.shuffleList(list);
     canvasData.drawSticks(list);
 };
+document.getElementById("create-list").onclick = function () {
+    bubbleSortVariants.sorting = false;
+    chosePredefindedList = false;
+    var inputElement = document.getElementById("own-list");
+    myList = (inputElement.value.split(",").map(function (numStr) { return parseFloat(numStr); }));
+    canvasData.drawSticks(myList);
+};
 document.getElementById("play_or_pause-sorting").onclick = function () {
+    var chosenList = chosePredefindedList ? list : myList;
     bubbleSortVariants.sorting = !bubbleSortVariants.sorting;
     if (bubbleSortVariants.sorting) {
-        bubbleSortVariants.bubbleSortFull(list);
+        bubbleSortVariants.bubbleSortFull(chosenList);
     }
 };

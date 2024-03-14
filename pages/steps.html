@@ -11,7 +11,13 @@
     </div>
 
     <div class="list-choice">
-        <input type="text" name="own_list" id="">
+        <label for="own-list">Bitte geben Sie eine Liste von Zahlen ein (z.B. 1, 2, 3
+            ...):</label>
+        <br>
+        <br>
+        <input type="text" name="own-list" id="own-list" pattern="[A-Za-z]{3}">
+        <button id="create-list">Liste erstellen</button>
+        <br><br>
         <button id="generate-list">Liste von 1-20 generieren</button>
     </div>
 

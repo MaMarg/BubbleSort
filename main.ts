@@ -2,18 +2,7 @@ let currentStep = 0;
 let amountPasses = 0;
 
 class BubbleSortVaraints {
-
-    /*let listLength = list.length;
-for (let i = listLength; i > 1; i--) {
-    for (let j = 0; j < listLength - 1; j++) {
-        if (list[j] > list[j + 1]) {
-            [list[j], list[j + 1]] = [list[j + 1], list[j]];
-            canvasData.drawSticks(list);
-        }
-    }
-}*/
-    //sorting true heißt es sortiert gerade
-    sorting = false;
+    sorting = false
 
     bubbleSortFull(list: Array<number>) {
         // reference to use class property inside of the functions
@@ -131,18 +120,29 @@ class Canvas {
 
 let bubbleSortVariants = new BubbleSortVaraints()
 let canvasData = new Canvas()
-let list = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+let list = [20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
+let chosePredefindedList: boolean
+let myList: number[]
 
-document.getElementById("generate-list").onclick = function () {
+document.getElementById("generate-list").onclick = () => {
     bubbleSortVariants.sorting = false
     currentStep = 0
     canvasData.shuffleList(list)
     canvasData.drawSticks(list)
 }
 
-document.getElementById("play_or_pause-sorting").onclick = function () {
+document.getElementById("create-list").onclick = () => {
+    bubbleSortVariants.sorting = false
+    chosePredefindedList = false
+    let inputElement = document.getElementById("own-list") as HTMLInputElement
+    myList = (inputElement.value.split(",").map(numStr => parseFloat(numStr)))
+    canvasData.drawSticks(myList)
+}
+
+document.getElementById("play_or_pause-sorting").onclick = () => {
+    let chosenList = chosePredefindedList ? list : myList
     bubbleSortVariants.sorting = !bubbleSortVariants.sorting
     if (bubbleSortVariants.sorting) {
-        bubbleSortVariants.bubbleSortFull(list)
+        bubbleSortVariants.bubbleSortFull(chosenList)
     }
 }
