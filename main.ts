@@ -1,4 +1,5 @@
 let currentStep = 0;
+let amountPasses = 0;
 
 class BubbleSortVaraints {
 
@@ -15,17 +16,21 @@ for (let i = listLength; i > 1; i--) {
     sorting = false;
 
     bubbleSortFull(list: Array<number>) {
+        // reference to use class property inside of the functions
+        let self = this;
+        // tasklist to keep the started Timouts to kill them later
+        let nextTaskList: Array<ReturnType<typeof setTimeout> > = []
         // interrupts the outer loop if sorting is false
-        let sorting = this.sorting
-        let nextTaskList: Array<{[id:string] : ReturnType<typeof setTimeout> }> = []
-        if (!this.sorting) return
+        if (!self.sorting) return
         
         function bubbleSortPass(i: number) {
             // stop at current step
-            if (!sorting){
+            if (!self.sorting){
                 currentStep = i
                 console.log("stopped")
-                for (let j=0; j < nextTaskList.length; i++){
+                // clear collected Timeouts
+                for (let j=0; j < nextTaskList.length; j++){
+                    console.log("killing tasks now")
                     let nextTask = nextTaskList[j]
                     clearTimeout(nextTask[0])
                 }
@@ -40,25 +45,32 @@ for (let i = listLength; i > 1; i--) {
                 let tempPos = list[i];
                 list[i] = list[i + 1];
                 list[i + 1] = tempPos;
-                //nachdem geswechselt wurde, neu zeichnen
-                canvasData.drawSticks(list);
             }
+            //draw the canvas anew with the highlight on the current step
+            canvasData.drawSticks(list);
             
-            //wenn noch nicht am ende der liste -> function neu aufrufen mit nächster position
-            if (i < list.length) {
-                let x = setTimeout(function () {
+            //if not at the end of list yet -> call function with the next position
+            if (i < list.length - 1) {
+                let timer = setTimeout(function () {
                     bubbleSortPass(i + 1);
                 }, 100);
-                nextTaskList.push(x)
-                    //wenn am ende der liste mache einen neuen pass
-            } else if (i >= list.length) {
+                // collect reference to kill later
+                nextTaskList.push(timer)
+                //if at the end of the list -> start a new pass
+                //dont make a new one if you already made list.length - 1 amount of passes
+            } else if ((i >= list.length - 1) && (amountPasses < list.length - 1 )) {
                 setTimeout(function () {
                     bubbleSortVariants.bubbleSortFull(list);
                 }, 50);
+                currentStep = 0
+                amountPasses = amountPasses + 1 
+            } else {
+                currentStep = 0
+                canvasData.drawSticks(list)
             }
         }
-
-        bubbleSortPass(0);
+        
+        bubbleSortPass(currentStep);
     }
 
     bubbleSortShort(list: Array<number>) {
@@ -123,6 +135,7 @@ let list = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 2
 
 document.getElementById("generate-list").onclick = function () {
     bubbleSortVariants.sorting = false
+    currentStep = 0
     canvasData.shuffleList(list)
     canvasData.drawSticks(list)
 }
