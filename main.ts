@@ -17,16 +17,21 @@ for (let i = listLength; i > 1; i--) {
     bubbleSortFull(list: Array<number>) {
         // interrupts the outer loop if sorting is false
         let sorting = this.sorting
+        let nextTaskList: Array<{[id:string] : ReturnType<typeof setTimeout> }> = []
         if (!this.sorting) return
-
+        
         function bubbleSortPass(i: number) {
             // stop at current step
             if (!sorting){
                 currentStep = i
                 console.log("stopped")
+                for (let j=0; j < nextTaskList.length; i++){
+                    let nextTask = nextTaskList[j]
+                    clearTimeout(nextTask[0])
+                }
                 return
             } 
-
+            
             /* der eigentliche algorithmus
             wenn der aktuelle größer ist als der folgende wird gewechselt
             dadurch ist ganz rechts am ende der größte*/
@@ -38,13 +43,14 @@ for (let i = listLength; i > 1; i--) {
                 //nachdem geswechselt wurde, neu zeichnen
                 canvasData.drawSticks(list);
             }
-
+            
             //wenn noch nicht am ende der liste -> function neu aufrufen mit nächster position
             if (i < list.length) {
-                setTimeout(function () {
+                let x = setTimeout(function () {
                     bubbleSortPass(i + 1);
                 }, 100);
-            //wenn am ende der liste mache einen neuen pass
+                nextTaskList.push(x)
+                    //wenn am ende der liste mache einen neuen pass
             } else if (i >= list.length) {
                 setTimeout(function () {
                     bubbleSortVariants.bubbleSortFull(list);
