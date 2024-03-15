@@ -115,6 +115,9 @@ var Canvas = /** @class */ (function () {
     };
     return Canvas;
 }());
+function checkPattern(input, pattern) {
+    return pattern.test(input);
+}
 var bubbleSortVariants = new BubbleSortVaraints();
 var canvasData = new Canvas();
 var list = [20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1];
@@ -127,10 +130,15 @@ document.getElementById("generate-list").onclick = function () {
     canvasData.drawSticks(list);
 };
 document.getElementById("create-list").onclick = function () {
-    bubbleSortVariants.sorting = false;
-    chosePredefindedList = false;
     var inputElement = document.getElementById("own-list");
     myList = (inputElement.value.split(",").map(function (numStr) { return parseFloat(numStr); }));
+    if (!checkPattern(myList, new RegExp(/^([1-9]|[1][0-9])(,\s*[1-9]|[1][0-9])*$/))) {
+        alert("Bitte geben Sie gültige Werte an!\nGültige Werte: Zahlen von 1 bis 20");
+        return;
+    }
+    console.log(myList);
+    bubbleSortVariants.sorting = false;
+    chosePredefindedList = false;
     canvasData.drawSticks(myList);
 };
 document.getElementById("play_or_pause-sorting").onclick = function () {

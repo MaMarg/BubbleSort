@@ -107,7 +107,7 @@ class Canvas {
             let stickLength = (this.stickMaxLength + lengthExtender)
             this.canvasContext.beginPath()
             this.canvasContext.rect((stickX + this.stickPadding), (298 - stickLength), this.stickWidth, stickLength)
-            if (i == currentStep || i - 1 == currentStep){
+            if (i == currentStep || i - 1 == currentStep) {
                 this.canvasContext.fillStyle = "#801010"
             } else {
                 this.canvasContext.fillStyle = "#808080"
@@ -116,6 +116,10 @@ class Canvas {
             this.canvasContext.closePath()
         }
     }
+}
+
+function checkPattern(input: any, pattern: RegExp) {
+    return pattern.test(input);
 }
 
 let bubbleSortVariants = new BubbleSortVaraints()
@@ -132,10 +136,16 @@ document.getElementById("generate-list").onclick = () => {
 }
 
 document.getElementById("create-list").onclick = () => {
-    bubbleSortVariants.sorting = false
-    chosePredefindedList = false
     let inputElement = document.getElementById("own-list") as HTMLInputElement
     myList = (inputElement.value.split(",").map(numStr => parseFloat(numStr)))
+    if (!checkPattern(myList, new RegExp(/^([1-9]|[1][0-9])(,\s*[1-9]|[1][0-9])*$/))) {
+        alert("Bitte geben Sie gültige Werte an!\nGültige Werte: Zahlen von 1 bis 20")
+        return
+    }
+    console.log(myList)
+
+    bubbleSortVariants.sorting = false
+    chosePredefindedList = false
     canvasData.drawSticks(myList)
 }
 
