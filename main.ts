@@ -1,32 +1,30 @@
 let currentStep = 0;
+let amountPasses = 0;
 
 class BubbleSortVaraints {
-
-    /*let listLength = list.length;
-for (let i = listLength; i > 1; i--) {
-    for (let j = 0; j < listLength - 1; j++) {
-        if (list[j] > list[j + 1]) {
-            [list[j], list[j + 1]] = [list[j + 1], list[j]];
-            canvasData.drawSticks(list);
-        }
-    }
-}*/
-    //sorting true heißt es sortiert gerade
-    sorting = false;
+    sorting = false
 
     bubbleSortFull(list: Array<number>) {
+        // reference to use class property inside of the functions
+        let self = this;
+        // tasklist to keep the started Timouts to kill them later
+        let nextTaskList: Array<ReturnType<typeof setTimeout> > = []
         // interrupts the outer loop if sorting is false
-        let sorting = this.sorting
-        if (!this.sorting) return
-
+        if (!self.sorting) return
+        
         function bubbleSortPass(i: number) {
             // stop at current step
-            if (!sorting){
+            if (!self.sorting){
                 currentStep = i
-                console.log("stopped")
+                // clear collected Timeouts
+                for (let j=0; j < nextTaskList.length; j++){
+                    console.log("killing tasks now")
+                    let nextTask = nextTaskList[j]
+                    clearTimeout(nextTask[0])
+                }
                 return
             } 
-
+            
             /* der eigentliche algorithmus
             wenn der aktuelle größer ist als der folgende wird gewechselt
             dadurch ist ganz rechts am ende der größte*/
@@ -35,24 +33,32 @@ for (let i = listLength; i > 1; i--) {
                 let tempPos = list[i];
                 list[i] = list[i + 1];
                 list[i + 1] = tempPos;
-                //nachdem geswechselt wurde, neu zeichnen
-                canvasData.drawSticks(list);
             }
-
-            //wenn noch nicht am ende der liste -> function neu aufrufen mit nächster position
-            if (i < list.length) {
-                setTimeout(function () {
+            //draw the canvas anew with the highlight on the current step
+            canvasData.drawSticks(list);
+            
+            //if not at the end of list yet -> call function with the next position
+            if (i < list.length - 1) {
+                let timer = setTimeout(function () {
                     bubbleSortPass(i + 1);
                 }, 100);
-            //wenn am ende der liste mache einen neuen pass
-            } else if (i >= list.length) {
+                // collect reference to kill later
+                nextTaskList.push(timer)
+                //if at the end of the list -> start a new pass
+                //dont make a new one if you already made list.length - 1 amount of passes
+            } else if ((i >= list.length - 1) && (amountPasses < list.length - 1 )) {
                 setTimeout(function () {
                     bubbleSortVariants.bubbleSortFull(list);
                 }, 50);
+                currentStep = 0
+                amountPasses = amountPasses + 1 
+            } else {
+                currentStep = 0
+                canvasData.drawSticks(list)
             }
         }
-
-        bubbleSortPass(0);
+        
+        bubbleSortPass(currentStep);
     }
 
     bubbleSortShort(list: Array<number>) {
@@ -100,7 +106,7 @@ class Canvas {
             let stickLength = (this.stickMaxLength + lengthExtender)
             this.canvasContext.beginPath()
             this.canvasContext.rect((stickX + this.stickPadding), (298 - stickLength), this.stickWidth, stickLength)
-            if (i == currentStep || i - 1 == currentStep){
+            if (i == currentStep || i - 1 == currentStep) {
                 this.canvasContext.fillStyle = "#801010"
             } else {
                 this.canvasContext.fillStyle = "#808080"
@@ -111,19 +117,45 @@ class Canvas {
     }
 }
 
-let bubbleSortVariants = new BubbleSortVaraints()
-let canvasData = new Canvas()
-let list = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
-
-document.getElementById("generate-list").onclick = function () {
-    bubbleSortVariants.sorting = false
-    canvasData.shuffleList(list)
-    canvasData.drawSticks(list)
+function checkPattern(input: any, pattern: RegExp) {
+    return pattern.test(input);
 }
 
-document.getElementById("play_or_pause-sorting").onclick = function () {
+let bubbleSortVariants = new BubbleSortVaraints()
+let canvasData = new Canvas()
+let list = [20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
+let chosePredefindedList: boolean
+let myList: number[]
+
+document.getElementById("generate-list").onclick = () => {
+    bubbleSortVariants.sorting = false
+    currentStep = 0
+    canvasData.shuffleList(list)
+    chosePredefindedList = true
+    canvasData.drawSticks(list)
+    currentStep = 0
+    amountPasses = 0
+}
+
+document.getElementById("create-list").onclick = () => {
+    let inputElement = document.getElementById("own-list") as HTMLInputElement
+    myList = (inputElement.value.split(",").map(numStr => parseFloat(numStr)))
+    if (!checkPattern(myList, new RegExp(/^([1-9]|[1][0-9])(,\s*[1-9]|[1][0-9])*$/))) {
+        alert("Bitte geben Sie gültige Werte an!\nGültige Werte: Zahlen von 1 bis 20")
+        return
+    }
+
+    bubbleSortVariants.sorting = false
+    chosePredefindedList = false
+    canvasData.drawSticks(myList)
+    currentStep = 0
+    amountPasses = 0
+}
+
+document.getElementById("play_or_pause-sorting").onclick = () => {
+    let chosenList = chosePredefindedList ? list : myList
     bubbleSortVariants.sorting = !bubbleSortVariants.sorting
     if (bubbleSortVariants.sorting) {
-        bubbleSortVariants.bubbleSortFull(list)
+        bubbleSortVariants.bubbleSortFull(chosenList)
     }
 }

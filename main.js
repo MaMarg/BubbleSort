@@ -1,28 +1,27 @@
 var currentStep = 0;
+var amountPasses = 0;
 var BubbleSortVaraints = /** @class */ (function () {
     function BubbleSortVaraints() {
-        /*let listLength = list.length;
-    for (let i = listLength; i > 1; i--) {
-        for (let j = 0; j < listLength - 1; j++) {
-            if (list[j] > list[j + 1]) {
-                [list[j], list[j + 1]] = [list[j + 1], list[j]];
-                canvasData.drawSticks(list);
-            }
-        }
-    }*/
-        //sorting true heißt es sortiert gerade
         this.sorting = false;
     }
     BubbleSortVaraints.prototype.bubbleSortFull = function (list) {
+        // reference to use class property inside of the functions
+        var self = this;
+        // tasklist to keep the started Timouts to kill them later
+        var nextTaskList = [];
         // interrupts the outer loop if sorting is false
-        var sorting = this.sorting;
-        if (!this.sorting)
+        if (!self.sorting)
             return;
         function bubbleSortPass(i) {
             // stop at current step
-            if (!sorting) {
+            if (!self.sorting) {
                 currentStep = i;
-                console.log("stopped");
+                // clear collected Timeouts
+                for (var j = 0; j < nextTaskList.length; j++) {
+                    console.log("killing tasks now");
+                    var nextTask = nextTaskList[j];
+                    clearTimeout(nextTask[0]);
+                }
                 return;
             }
             /* der eigentliche algorithmus
@@ -33,23 +32,32 @@ var BubbleSortVaraints = /** @class */ (function () {
                 var tempPos = list[i];
                 list[i] = list[i + 1];
                 list[i + 1] = tempPos;
-                //nachdem geswechselt wurde, neu zeichnen
-                canvasData.drawSticks(list);
             }
-            //wenn noch nicht am ende der liste -> function neu aufrufen mit nächster position
-            if (i < list.length) {
-                setTimeout(function () {
+            //draw the canvas anew with the highlight on the current step
+            canvasData.drawSticks(list);
+            //if not at the end of list yet -> call function with the next position
+            if (i < list.length - 1) {
+                var timer = setTimeout(function () {
                     bubbleSortPass(i + 1);
                 }, 100);
-                //wenn am ende der liste mache einen neuen pass
+                // collect reference to kill later
+                nextTaskList.push(timer);
+                //if at the end of the list -> start a new pass
+                //dont make a new one if you already made list.length - 1 amount of passes
             }
-            else if (i >= list.length) {
+            else if ((i >= list.length - 1) && (amountPasses < list.length - 1)) {
                 setTimeout(function () {
                     bubbleSortVariants.bubbleSortFull(list);
                 }, 50);
+                currentStep = 0;
+                amountPasses = amountPasses + 1;
+            }
+            else {
+                currentStep = 0;
+                canvasData.drawSticks(list);
             }
         }
-        bubbleSortPass(0);
+        bubbleSortPass(currentStep);
     };
     BubbleSortVaraints.prototype.bubbleSortShort = function (list) {
         var _a;
@@ -106,17 +114,40 @@ var Canvas = /** @class */ (function () {
     };
     return Canvas;
 }());
+function checkPattern(input, pattern) {
+    return pattern.test(input);
+}
 var bubbleSortVariants = new BubbleSortVaraints();
 var canvasData = new Canvas();
-var list = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
+var list = [20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1];
+var chosePredefindedList;
+var myList;
 document.getElementById("generate-list").onclick = function () {
     bubbleSortVariants.sorting = false;
+    currentStep = 0;
     canvasData.shuffleList(list);
+    chosePredefindedList = true;
     canvasData.drawSticks(list);
+    currentStep = 0;
+    amountPasses = 0;
+};
+document.getElementById("create-list").onclick = function () {
+    var inputElement = document.getElementById("own-list");
+    myList = (inputElement.value.split(",").map(function (numStr) { return parseFloat(numStr); }));
+    if (!checkPattern(myList, new RegExp(/^([1-9]|[1][0-9])(,\s*[1-9]|[1][0-9])*$/))) {
+        alert("Bitte geben Sie gültige Werte an!\nGültige Werte: Zahlen von 1 bis 20");
+        return;
+    }
+    bubbleSortVariants.sorting = false;
+    chosePredefindedList = false;
+    canvasData.drawSticks(myList);
+    currentStep = 0;
+    amountPasses = 0;
 };
 document.getElementById("play_or_pause-sorting").onclick = function () {
+    var chosenList = chosePredefindedList ? list : myList;
     bubbleSortVariants.sorting = !bubbleSortVariants.sorting;
     if (bubbleSortVariants.sorting) {
-        bubbleSortVariants.bubbleSortFull(list);
+        bubbleSortVariants.bubbleSortFull(chosenList);
     }
 };
