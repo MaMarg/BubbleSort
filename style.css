@@ -1,12 +1,28 @@
 body {
     background-color: #f9f9fb;
-    font-family: "Calibri", sans-serif;
 }
 
 p {
-    font-size: 105%;
+    font-size: 115%;
 }
 
-h1, h2 {
+h1 {
     text-align: center;
+    margin-bottom: 5px;
+}
+
+div {
+    margin-top: 10px;
+}
+
+.chose-bubble_sort-steps {
+    text-align: center;
+}
+
+.button-group {
+    margin: 20px;
+}
+
+.algorithm-description {
+    margin-top: 5px;
 }
