@@ -4,6 +4,7 @@ var BubbleSortVaraints = /** @class */ (function () {
     function BubbleSortVaraints() {
         this.sorting = false;
     }
+    //Full Sorting Script
     BubbleSortVaraints.prototype.bubbleSortFull = function (list) {
         // reference to use class property inside of the functions
         var self = this;
@@ -24,9 +25,9 @@ var BubbleSortVaraints = /** @class */ (function () {
                 }
                 return;
             }
-            /* der eigentliche algorithmus
-            wenn der aktuelle größer ist als der folgende wird gewechselt
-            dadurch ist ganz rechts am ende der größte*/
+            /* the main algorithm
+            if a an element is bigger then the following, swap them
+            the list ends with the biggest element to the far right*/
             currentStep = i;
             if (list[i] > list[i + 1]) {
                 var tempPos = list[i];
@@ -36,7 +37,7 @@ var BubbleSortVaraints = /** @class */ (function () {
             //draw the canvas anew with the highlight on the current step
             canvasData.drawSticks(list);
             //if not at the end of list yet -> call function with the next position
-            if (i < list.length - 1) {
+            if (i < list.length - 2) {
                 var timer = setTimeout(function () {
                     bubbleSortPass(i + 1);
                 }, 100);
@@ -45,7 +46,7 @@ var BubbleSortVaraints = /** @class */ (function () {
                 //if at the end of the list -> start a new pass
                 //dont make a new one if you already made list.length - 1 amount of passes
             }
-            else if ((i >= list.length - 1) && (amountPasses < list.length - 1)) {
+            else if ((i >= list.length - 2) && (amountPasses < list.length - 1)) {
                 setTimeout(function () {
                     bubbleSortVariants.bubbleSortFull(list);
                 }, 50);
@@ -55,9 +56,43 @@ var BubbleSortVaraints = /** @class */ (function () {
             else {
                 currentStep = 0;
                 canvasData.drawSticks(list);
+                //TODO disable sort+ step button because its already sorted, so no point until new list
             }
         }
         bubbleSortPass(currentStep);
+    };
+    //Step Sorting Script
+    BubbleSortVaraints.prototype.bubbleSortStep = function (list) {
+        function bubbleSortStepFunction(i) {
+            /* the main algorithm
+            if a an element is bigger then the following, swap them
+            the list ends with the biggest element to the far right*/
+            if (list[i] > list[i + 1]) {
+                var tempPos = list[i];
+                list[i] = list[i + 1];
+                list[i + 1] = tempPos;
+            }
+            //draw the canvas anew with the highlight on the current step
+            canvasData.drawSticks(list);
+            //if not at the end of list yet move currentStep along
+            if (i < list.length - 2) {
+                currentStep = i + 1;
+                //if at the end of the list -> start a new pass
+                //dont make a new one if you already made list.length - 1 amount of passes
+            }
+            else if ((i >= list.length - 2) && (amountPasses < list.length - 1)) {
+                currentStep = 0;
+                amountPasses = amountPasses + 1;
+                // if already made list.length -1 amount of passes
+                // be done with sorting
+            }
+            else {
+                currentStep = 0;
+                canvasData.drawSticks(list);
+                //TODO disable sort+ step button because its already sorted, so no point until new list
+            }
+        }
+        bubbleSortStepFunction(currentStep);
     };
     BubbleSortVaraints.prototype.bubbleSortShort = function (list) {
         var _a;
@@ -81,7 +116,7 @@ var Canvas = /** @class */ (function () {
         this.canvas = document.getElementById("canvas-bubblesort");
         this.canvasContext = this.canvas.getContext("2d");
         this.stickWidth = 20;
-        this.stickMaxLength = 10;
+        this.stickBaseLength = 10;
         this.stickPadding = 2;
     }
     Canvas.prototype.shuffleList = function (list) {
@@ -97,11 +132,24 @@ var Canvas = /** @class */ (function () {
     Canvas.prototype.drawSticks = function (list) {
         this.canvasContext.clearRect(0, 0, this.canvas.width, this.canvas.height);
         for (var i = 0; i < list.length; i++) {
-            var stickX = (i * (this.stickWidth + this.stickPadding));
-            var lengthExtender = list[i] * 10;
-            var stickLength = (this.stickMaxLength + lengthExtender);
+            // calculated dynamical from canvas width, stick width is no more than twice stick height so it doesnt look to stupid
+            // ratio is optimal for stick width = 20 at 700
+            var ratioStickWidth = this.stickWidth / 700;
+            //similarly the padding
+            var ratioPadding = this.stickPadding / 700;
+            // calculated dynamical from canvas height
+            // ratio is optimal for Base Length = 10 at 300 canvas height
+            var ratioStickHeight = this.stickBaseLength / 300;
+            // x coordinate for the stick; horizontal padding + base stick width multiplied by their ratios
+            var stickX = (i * ((this.canvas.width * ratioStickWidth) + (this.canvas.width * ratioPadding)));
+            // length of the stick; value of the stick + 1 for a base length * additional length
+            var stickLength = (list[i] + 1) * this.canvas.height * ratioStickHeight;
             this.canvasContext.beginPath();
-            this.canvasContext.rect((stickX + this.stickPadding), (298 - stickLength), this.stickWidth, stickLength);
+            // draw the stick
+            // canvas 0,0 is top left so
+            // y coordinate is canvas height - text height - height of the stick (test height is the same as the width)
+            // ratios multiplied for different canvas sizes
+            this.canvasContext.rect(stickX + (this.canvas.width * ratioPadding), this.canvas.height - stickLength - (ratioStickWidth * this.canvas.width), this.canvas.width * ratioStickWidth, stickLength);
             if (i == currentStep || i - 1 == currentStep) {
                 this.canvasContext.fillStyle = "#801010";
             }
@@ -110,6 +158,12 @@ var Canvas = /** @class */ (function () {
             }
             this.canvasContext.fill();
             this.canvasContext.closePath();
+            // dynamical font size depending on canvas height
+            // ratio is optimal 16px size at 300 canvas hight
+            var ratioText = 16 / 300;
+            this.canvasContext.font = (ratioText * this.canvas.height).toString() + "px Arial";
+            this.canvasContext.textAlign = "center";
+            this.canvasContext.fillText((list[i]).toString(), stickX + (this.canvas.width * ratioPadding) + (this.canvas.width * ratioStickWidth / 2), this.canvas.height);
         }
     };
     return Canvas;
@@ -128,8 +182,8 @@ document.getElementById("generate-list").onclick = function () {
     canvasData.shuffleList(list);
     chosePredefindedList = true;
     canvasData.drawSticks(list);
-    currentStep = 0;
     amountPasses = 0;
+    // TODO enable sort + step button if not already
 };
 document.getElementById("create-list").onclick = function () {
     var inputElement = document.getElementById("own-list");
@@ -140,9 +194,10 @@ document.getElementById("create-list").onclick = function () {
     }
     bubbleSortVariants.sorting = false;
     chosePredefindedList = false;
-    canvasData.drawSticks(myList);
     currentStep = 0;
+    canvasData.drawSticks(myList);
     amountPasses = 0;
+    // TODO enable sort + step button if not already
 };
 document.getElementById("play_or_pause-sorting").onclick = function () {
     var chosenList = chosePredefindedList ? list : myList;
@@ -150,4 +205,9 @@ document.getElementById("play_or_pause-sorting").onclick = function () {
     if (bubbleSortVariants.sorting) {
         bubbleSortVariants.bubbleSortFull(chosenList);
     }
+    // TODO disable step button if playing
+};
+document.getElementById("single-step").onclick = function () {
+    var chosenList = chosePredefindedList ? list : myList;
+    bubbleSortVariants.bubbleSortStep(chosenList);
 };

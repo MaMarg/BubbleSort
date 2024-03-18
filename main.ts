@@ -4,6 +4,7 @@ let amountPasses = 0;
 class BubbleSortVaraints {
     sorting = false
 
+    //Full Sorting Script
     bubbleSortFull(list: Array<number>) {
         // reference to use class property inside of the functions
         let self = this;
@@ -25,9 +26,9 @@ class BubbleSortVaraints {
                 return
             } 
             
-            /* der eigentliche algorithmus
-            wenn der aktuelle größer ist als der folgende wird gewechselt
-            dadurch ist ganz rechts am ende der größte*/
+            /* the main algorithm
+            if a an element is bigger then the following, swap them
+            the list ends with the biggest element to the far right*/
             currentStep = i;
             if (list[i] > list[i + 1]) {
                 let tempPos = list[i];
@@ -38,7 +39,7 @@ class BubbleSortVaraints {
             canvasData.drawSticks(list);
             
             //if not at the end of list yet -> call function with the next position
-            if (i < list.length - 1) {
+            if (i < list.length - 2) {
                 let timer = setTimeout(function () {
                     bubbleSortPass(i + 1);
                 }, 100);
@@ -46,7 +47,7 @@ class BubbleSortVaraints {
                 nextTaskList.push(timer)
                 //if at the end of the list -> start a new pass
                 //dont make a new one if you already made list.length - 1 amount of passes
-            } else if ((i >= list.length - 1) && (amountPasses < list.length - 1 )) {
+            } else if ((i >= list.length - 2) && (amountPasses < list.length - 1 )) {
                 setTimeout(function () {
                     bubbleSortVariants.bubbleSortFull(list);
                 }, 50);
@@ -55,10 +56,51 @@ class BubbleSortVaraints {
             } else {
                 currentStep = 0
                 canvasData.drawSticks(list)
+                //TODO disable sort+ step button because its already sorted, so no point until new list
             }
         }
         
         bubbleSortPass(currentStep);
+    }
+    
+    //Step Sorting Script
+    bubbleSortStep(list: Array<number>) {
+        
+        function bubbleSortStepFunction(i: number) { 
+            
+
+            /* the main algorithm
+            if a an element is bigger then the following, swap them
+            the list ends with the biggest element to the far right*/
+            if (list[i] > list[i + 1]) {
+                let tempPos = list[i];
+                list[i] = list[i + 1];
+                list[i + 1] = tempPos;
+            }
+            //draw the canvas anew with the highlight on the current step
+            canvasData.drawSticks(list);
+            
+            //if not at the end of list yet move currentStep along
+            if (i < list.length - 2) {
+                currentStep = i + 1
+
+            //if at the end of the list -> start a new pass
+            //dont make a new one if you already made list.length - 1 amount of passes
+            } else if ((i >= list.length - 2) && (amountPasses < list.length - 1 )) {
+                currentStep = 0
+                amountPasses = amountPasses + 1 
+
+            // if already made list.length -1 amount of passes
+            // be done with sorting
+            } else {
+                currentStep = 0
+                canvasData.drawSticks(list)
+                //TODO disable sort+ step button because its already sorted, so no point until new list
+            }
+        }
+
+        
+        bubbleSortStepFunction(currentStep);
     }
 
     bubbleSortShort(list: Array<number>) {
@@ -81,7 +123,7 @@ class Canvas {
     canvas = document.getElementById("canvas-bubblesort") as HTMLCanvasElement
     canvasContext = this.canvas.getContext("2d")
     stickWidth = 20
-    stickMaxLength = 10
+    stickBaseLength = 10
     stickPadding = 2
 
     shuffleList(list: number[]) {
@@ -99,20 +141,49 @@ class Canvas {
     }
 
     drawSticks(list: number[]) {
-        this.canvasContext.clearRect(0, 0, this.canvas.width, this.canvas.height)
-        for (let i = 0; i < list.length; i++) {
-            let stickX = (i * (this.stickWidth + this.stickPadding))
-            let lengthExtender = list[i] * 10
-            let stickLength = (this.stickMaxLength + lengthExtender)
-            this.canvasContext.beginPath()
-            this.canvasContext.rect((stickX + this.stickPadding), (298 - stickLength), this.stickWidth, stickLength)
-            if (i == currentStep || i - 1 == currentStep) {
-                this.canvasContext.fillStyle = "#801010"
-            } else {
-                this.canvasContext.fillStyle = "#808080"
+        if (this.canvasContext){
+            this.canvasContext.clearRect(0, 0, this.canvas.width, this.canvas.height)
+            for (let i = 0; i < list.length; i++) {
+                
+                // calculated dynamical from canvas width, stick width is no more than twice stick height so it doesnt look to stupid
+                // TODO limit
+                // ratio is optimal for stick width = 20 at 700
+                let ratioStickWidth = this.stickWidth / 700
+                //similarly the padding
+                let ratioPadding = this.stickPadding / 700
+                
+                // calculated dynamical from canvas height
+                // ratio is optimal for Base Length = 10 at 300 canvas height
+                let ratioStickHeight = this.stickBaseLength / 300;
+                
+                // x coordinate for the stick; horizontal padding + base stick width multiplied by their ratios
+                let stickX = (i * ((this.canvas.width * ratioStickWidth) + (this.canvas.width * ratioPadding)))
+                
+                // length of the stick; value of the stick + 1 for a base length * additional length
+                let stickLength = (list[i] + 1) * this.canvas.height * ratioStickHeight
+                this.canvasContext.beginPath()
+                // draw the stick
+                // canvas 0,0 is top left so
+                // y coordinate is canvas height - text height - height of the stick (test height is the same as the width)
+                // ratios multiplied for different canvas sizes
+                this.canvasContext.rect(stickX + (this.canvas.width * ratioPadding), this.canvas.height - stickLength - (ratioStickWidth * this.canvas.width), this.canvas.width * ratioStickWidth, stickLength)
+                if (i == currentStep || i - 1 == currentStep) {
+                    this.canvasContext.fillStyle = "#801010"
+                } else {
+                    this.canvasContext.fillStyle = "#808080"
+                }
+                this.canvasContext.fill()
+                this.canvasContext.closePath()
+                
+                // dynamical font size depending on canvas height
+                // ratio is optimal 16px size at 300 canvas hight
+                let ratioText = 16 / 300;
+                this.canvasContext.font = (ratioText * this.canvas.height).toString() + "px Arial"
+                this.canvasContext.textAlign = "center"
+                this.canvasContext.fillText((list[i]).toString(), stickX + (this.canvas.width * ratioPadding) + (this.canvas.width * ratioStickWidth / 2), this.canvas.height)
             }
-            this.canvasContext.fill()
-            this.canvasContext.closePath()
+        } else {
+            alert("You are calling this script from the wrong place")
         }
     }
 }
@@ -127,35 +198,55 @@ let list = [20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 
 let chosePredefindedList: boolean
 let myList: number[]
 
-document.getElementById("generate-list").onclick = () => {
-    bubbleSortVariants.sorting = false
-    currentStep = 0
-    canvasData.shuffleList(list)
-    chosePredefindedList = true
-    canvasData.drawSticks(list)
-    currentStep = 0
-    amountPasses = 0
-}
-
-document.getElementById("create-list").onclick = () => {
-    let inputElement = document.getElementById("own-list") as HTMLInputElement
-    myList = (inputElement.value.split(",").map(numStr => parseFloat(numStr)))
-    if (!checkPattern(myList, new RegExp(/^([1-9]|[1][0-9])(,\s*[1-9]|[1][0-9])*$/))) {
-        alert("Bitte geben Sie gültige Werte an!\nGültige Werte: Zahlen von 1 bis 20")
-        return
-    }
-
-    bubbleSortVariants.sorting = false
-    chosePredefindedList = false
-    canvasData.drawSticks(myList)
-    currentStep = 0
-    amountPasses = 0
-}
-
-document.getElementById("play_or_pause-sorting").onclick = () => {
-    let chosenList = chosePredefindedList ? list : myList
-    bubbleSortVariants.sorting = !bubbleSortVariants.sorting
-    if (bubbleSortVariants.sorting) {
-        bubbleSortVariants.bubbleSortFull(chosenList)
+let generateListButton = document.getElementById("generate-list")
+if (generateListButton){
+    generateListButton.onclick = () => {
+        bubbleSortVariants.sorting = false
+        currentStep = 0
+        canvasData.shuffleList(list)
+        chosePredefindedList = true
+        canvasData.drawSticks(list)
+        amountPasses = 0
+        // TODO enable sort + step button if not already
     }
 }
+    
+let createListButton = document.getElementById("create-list")
+if (createListButton){
+    createListButton.onclick = () => {
+        let inputElement = document.getElementById("own-list") as HTMLInputElement
+        myList = (inputElement.value.split(",").map(numStr => parseFloat(numStr)))
+        if (!checkPattern(myList, new RegExp(/^([1-9]|[1][0-9])(,\s*[1-9]|[1][0-9])*$/))) {
+            alert("Bitte geben Sie gültige Werte an!\nGültige Werte: Zahlen von 1 bis 20")
+            return
+        }
+        
+        bubbleSortVariants.sorting = false
+        chosePredefindedList = false
+        currentStep = 0
+        canvasData.drawSticks(myList)
+        amountPasses = 0
+        // TODO enable sort + step button if not already
+    }
+}
+
+let playPauseButton = document.getElementById("play_or_pause-sorting")
+if (playPauseButton){
+    playPauseButton.onclick = () => {
+        let chosenList = chosePredefindedList ? list : myList
+        bubbleSortVariants.sorting = !bubbleSortVariants.sorting
+        if (bubbleSortVariants.sorting) {
+            bubbleSortVariants.bubbleSortFull(chosenList)
+        }
+        // TODO disable step button if playing
+    }
+}
+
+let  singleStepButton = document.getElementById("single-step")
+if (singleStepButton){
+    singleStepButton.onclick = () => {
+        let chosenList = chosePredefindedList ? list : myList
+        bubbleSortVariants.bubbleSortStep(chosenList)
+    }
+}
+    
