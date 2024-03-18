@@ -131,7 +131,10 @@ document.getElementById("generate-list").onclick = () => {
     bubbleSortVariants.sorting = false
     currentStep = 0
     canvasData.shuffleList(list)
+    chosePredefindedList = true
     canvasData.drawSticks(list)
+    currentStep = 0
+    amountPasses = 0
 }
 
 document.getElementById("create-list").onclick = () => {
@@ -145,6 +148,8 @@ document.getElementById("create-list").onclick = () => {
     bubbleSortVariants.sorting = false
     chosePredefindedList = false
     canvasData.drawSticks(myList)
+    currentStep = 0
+    amountPasses = 0
 }
 
 document.getElementById("play_or_pause-sorting").onclick = () => {

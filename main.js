@@ -126,7 +126,10 @@ document.getElementById("generate-list").onclick = function () {
     bubbleSortVariants.sorting = false;
     currentStep = 0;
     canvasData.shuffleList(list);
+    chosePredefindedList = true;
     canvasData.drawSticks(list);
+    currentStep = 0;
+    amountPasses = 0;
 };
 document.getElementById("create-list").onclick = function () {
     var inputElement = document.getElementById("own-list");
@@ -138,6 +141,8 @@ document.getElementById("create-list").onclick = function () {
     bubbleSortVariants.sorting = false;
     chosePredefindedList = false;
     canvasData.drawSticks(myList);
+    currentStep = 0;
+    amountPasses = 0;
 };
 document.getElementById("play_or_pause-sorting").onclick = function () {
     var chosenList = chosePredefindedList ? list : myList;
