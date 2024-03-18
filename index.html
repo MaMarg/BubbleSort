@@ -8,17 +8,48 @@
 <div class="container">
     <div class="title">
         <h1>Bubblesort Algorithmus Visualisierung</h1>
-        <p>Description Placeholder</p>
+        <p>
+            Beim Bubblesort Algorithmus läuft ein Array immer paarweise von links nach rechts
+            in einer sogenannten Bubble-Phase durch.<br>
+            Man startet also mit der ersten Zahl und vergleicht diese
+            dann mit ihrem direkten Nachbarn nach dem Sortierkriterium.<br>
+            Sollten beide Elemente nicht in der richtigen
+            Reihenfolge sein, werden sie ganz einfach miteinander vertauscht.<br>
+            Danach wird direkt das nächste Paar
+            miteinander verglichen, bis die gesamte Liste einmal durchlaufen wurde.<br>
+            Die Phase wird so oft wiederholt,
+            bis das gesamte Array vollständig sortiert ist.
+        </p>
     </div>
 
     <div class="pseudocode">
         <h2>Pseudocode</h2>
-        <h3>Pseudocode Placeholde img</h3>
+        <p>Bubblesort ist in 2 verschiedenen Varianten darstellbar:</p>
+        <div class="bubblesort_images">
+            <img src="img/simple_bubblesort.PNG" alt="">
+            <img src="img/advanced_bubblesort.PNG" alt="">
+        </div>
+        <h3>Erklärung</h3>
+        <p>
+            Der erste Algorithmus, 'bubbleSort', verwendet zwei Schleifen.<br> Die äußere Schleife läuft über die Länge
+            der
+            Liste und verringert bei jedem Durchgang die Grenze für den Sortiervorgang um eins.<br> Die innere Schleife
+            durchläuft die Liste und vergleicht benachbarte Elemente, tauscht sie gegebenenfalls und fährt fort, bis das
+            Ende der Liste erreicht ist.
+        </p>
+        <p>
+            Der zweite Algorithmus, 'bubbleSort2', verwendet ebenfalls zwei Schleifen.<br> Die äußere Schleife läuft
+            jedoch so
+            lange, wie Vertauschungen vorgenommen wurden.<br> Dies bedeutet, dass der Sortiervorgang abgebrochen wird,
+            sobald keine weiteren Vertauschungen notwendig sind, was potenziell zu einer verbesserten Leistung führen
+            kann, wenn die Liste bereits teilweise sortiert ist.
+        </p>
     </div>
 
     <div class="chose-bubble_sort-steps">
-        <button>Vorschau</button>
-        <button>Einzelschritte</button>
+        <h2>Bubblesort Demonstration</h2>
+        <button onclick="location.href='pages/steps.html'">Einzelschritte</button>
+        <button onclick="location.href='pages/preview.html'">Simulation</button>
     </div>
 </div>
 </body>
