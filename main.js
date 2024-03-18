@@ -16,7 +16,6 @@ var BubbleSortVaraints = /** @class */ (function () {
             // stop at current step
             if (!self.sorting) {
                 currentStep = i;
-                console.log("stopped");
                 // clear collected Timeouts
                 for (var j = 0; j < nextTaskList.length; j++) {
                     console.log("killing tasks now");
@@ -136,7 +135,6 @@ document.getElementById("create-list").onclick = function () {
         alert("Bitte geben Sie gültige Werte an!\nGültige Werte: Zahlen von 1 bis 20");
         return;
     }
-    console.log(myList);
     bubbleSortVariants.sorting = false;
     chosePredefindedList = false;
     canvasData.drawSticks(myList);
