@@ -130,40 +130,46 @@ var Canvas = /** @class */ (function () {
         }
     };
     Canvas.prototype.drawSticks = function (list) {
-        this.canvasContext.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        for (var i = 0; i < list.length; i++) {
-            // calculated dynamical from canvas width, stick width is no more than twice stick height so it doesnt look to stupid
-            // ratio is optimal for stick width = 20 at 700
-            var ratioStickWidth = this.stickWidth / 700;
-            //similarly the padding
-            var ratioPadding = this.stickPadding / 700;
-            // calculated dynamical from canvas height
-            // ratio is optimal for Base Length = 10 at 300 canvas height
-            var ratioStickHeight = this.stickBaseLength / 300;
-            // x coordinate for the stick; horizontal padding + base stick width multiplied by their ratios
-            var stickX = (i * ((this.canvas.width * ratioStickWidth) + (this.canvas.width * ratioPadding)));
-            // length of the stick; value of the stick + 1 for a base length * additional length
-            var stickLength = (list[i] + 1) * this.canvas.height * ratioStickHeight;
-            this.canvasContext.beginPath();
-            // draw the stick
-            // canvas 0,0 is top left so
-            // y coordinate is canvas height - text height - height of the stick (test height is the same as the width)
-            // ratios multiplied for different canvas sizes
-            this.canvasContext.rect(stickX + (this.canvas.width * ratioPadding), this.canvas.height - stickLength - (ratioStickWidth * this.canvas.width), this.canvas.width * ratioStickWidth, stickLength);
-            if (i == currentStep || i - 1 == currentStep) {
-                this.canvasContext.fillStyle = "#801010";
+        if (this.canvasContext) {
+            this.canvasContext.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            for (var i = 0; i < list.length; i++) {
+                // calculated dynamical from canvas width, stick width is no more than twice stick height so it doesnt look to stupid
+                // TODO limit
+                // ratio is optimal for stick width = 20 at 700
+                var ratioStickWidth = this.stickWidth / 700;
+                //similarly the padding
+                var ratioPadding = this.stickPadding / 700;
+                // calculated dynamical from canvas height
+                // ratio is optimal for Base Length = 10 at 300 canvas height
+                var ratioStickHeight = this.stickBaseLength / 300;
+                // x coordinate for the stick; horizontal padding + base stick width multiplied by their ratios
+                var stickX = (i * ((this.canvas.width * ratioStickWidth) + (this.canvas.width * ratioPadding)));
+                // length of the stick; value of the stick + 1 for a base length * additional length
+                var stickLength = (list[i] + 1) * this.canvas.height * ratioStickHeight;
+                this.canvasContext.beginPath();
+                // draw the stick
+                // canvas 0,0 is top left so
+                // y coordinate is canvas height - text height - height of the stick (test height is the same as the width)
+                // ratios multiplied for different canvas sizes
+                this.canvasContext.rect(stickX + (this.canvas.width * ratioPadding), this.canvas.height - stickLength - (ratioStickWidth * this.canvas.width), this.canvas.width * ratioStickWidth, stickLength);
+                if (i == currentStep || i - 1 == currentStep) {
+                    this.canvasContext.fillStyle = "#801010";
+                }
+                else {
+                    this.canvasContext.fillStyle = "#808080";
+                }
+                this.canvasContext.fill();
+                this.canvasContext.closePath();
+                // dynamical font size depending on canvas height
+                // ratio is optimal 16px size at 300 canvas hight
+                var ratioText = 16 / 300;
+                this.canvasContext.font = (ratioText * this.canvas.height).toString() + "px Arial";
+                this.canvasContext.textAlign = "center";
+                this.canvasContext.fillText((list[i]).toString(), stickX + (this.canvas.width * ratioPadding) + (this.canvas.width * ratioStickWidth / 2), this.canvas.height);
             }
-            else {
-                this.canvasContext.fillStyle = "#808080";
-            }
-            this.canvasContext.fill();
-            this.canvasContext.closePath();
-            // dynamical font size depending on canvas height
-            // ratio is optimal 16px size at 300 canvas hight
-            var ratioText = 16 / 300;
-            this.canvasContext.font = (ratioText * this.canvas.height).toString() + "px Arial";
-            this.canvasContext.textAlign = "center";
-            this.canvasContext.fillText((list[i]).toString(), stickX + (this.canvas.width * ratioPadding) + (this.canvas.width * ratioStickWidth / 2), this.canvas.height);
+        }
+        else {
+            alert("You are calling this script from the wrong place");
         }
     };
     return Canvas;
@@ -176,38 +182,50 @@ var canvasData = new Canvas();
 var list = [20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1];
 var chosePredefindedList;
 var myList;
-document.getElementById("generate-list").onclick = function () {
-    bubbleSortVariants.sorting = false;
-    currentStep = 0;
-    canvasData.shuffleList(list);
-    chosePredefindedList = true;
-    canvasData.drawSticks(list);
-    amountPasses = 0;
-    // TODO enable sort + step button if not already
-};
-document.getElementById("create-list").onclick = function () {
-    var inputElement = document.getElementById("own-list");
-    myList = (inputElement.value.split(",").map(function (numStr) { return parseFloat(numStr); }));
-    if (!checkPattern(myList, new RegExp(/^([1-9]|[1][0-9])(,\s*[1-9]|[1][0-9])*$/))) {
-        alert("Bitte geben Sie gültige Werte an!\nGültige Werte: Zahlen von 1 bis 20");
-        return;
-    }
-    bubbleSortVariants.sorting = false;
-    chosePredefindedList = false;
-    currentStep = 0;
-    canvasData.drawSticks(myList);
-    amountPasses = 0;
-    // TODO enable sort + step button if not already
-};
-document.getElementById("play_or_pause-sorting").onclick = function () {
-    var chosenList = chosePredefindedList ? list : myList;
-    bubbleSortVariants.sorting = !bubbleSortVariants.sorting;
-    if (bubbleSortVariants.sorting) {
-        bubbleSortVariants.bubbleSortFull(chosenList);
-    }
-    // TODO disable step button if playing
-};
-document.getElementById("single-step").onclick = function () {
-    var chosenList = chosePredefindedList ? list : myList;
-    bubbleSortVariants.bubbleSortStep(chosenList);
-};
+var generateListButton = document.getElementById("generate-list");
+if (generateListButton) {
+    generateListButton.onclick = function () {
+        bubbleSortVariants.sorting = false;
+        currentStep = 0;
+        canvasData.shuffleList(list);
+        chosePredefindedList = true;
+        canvasData.drawSticks(list);
+        amountPasses = 0;
+        // TODO enable sort + step button if not already
+    };
+}
+var createListButton = document.getElementById("create-list");
+if (createListButton) {
+    createListButton.onclick = function () {
+        var inputElement = document.getElementById("own-list");
+        myList = (inputElement.value.split(",").map(function (numStr) { return parseFloat(numStr); }));
+        if (!checkPattern(myList, new RegExp(/^([1-9]|[1][0-9])(,\s*[1-9]|[1][0-9])*$/))) {
+            alert("Bitte geben Sie gültige Werte an!\nGültige Werte: Zahlen von 1 bis 20");
+            return;
+        }
+        bubbleSortVariants.sorting = false;
+        chosePredefindedList = false;
+        currentStep = 0;
+        canvasData.drawSticks(myList);
+        amountPasses = 0;
+        // TODO enable sort + step button if not already
+    };
+}
+var playPauseButton = document.getElementById("play_or_pause-sorting");
+if (playPauseButton) {
+    playPauseButton.onclick = function () {
+        var chosenList = chosePredefindedList ? list : myList;
+        bubbleSortVariants.sorting = !bubbleSortVariants.sorting;
+        if (bubbleSortVariants.sorting) {
+            bubbleSortVariants.bubbleSortFull(chosenList);
+        }
+        // TODO disable step button if playing
+    };
+}
+var singleStepButton = document.getElementById("single-step");
+if (singleStepButton) {
+    singleStepButton.onclick = function () {
+        var chosenList = chosePredefindedList ? list : myList;
+        bubbleSortVariants.bubbleSortStep(chosenList);
+    };
+}
