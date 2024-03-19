@@ -198,8 +198,11 @@ var createListButton = document.getElementById("create-list");
 if (createListButton) {
     createListButton.onclick = function () {
         var inputElement = document.getElementById("own-list");
-        myList = (inputElement.value.split(",").map(function (numStr) { return parseFloat(numStr); }));
-        if (!checkPattern(myList, new RegExp(/^([1-9]|[1][0-9])(,\s*[1-9]|[1][0-9])*$/))) {
+        // replace/remove all whitespaces, split at "," , parse the input into array of floats
+        myList = (inputElement.value.replace(/\s/g, '').split(",").map(function (numStr) { return parseFloat(numStr); }));
+        // old regex string ([1-9]|[1][0-9])(,\s*[1-9]|[1][0-9])*
+        if (!checkPattern(myList, new RegExp(/^([1-9]|(1[0-9])|20)(,[1-9]|(1[0-9])|20)$/))) {
+            // TODO entweder regex oder alert fixen. eingabe nimmt zahlen von 1-9 nicht 1-20
             alert("Bitte geben Sie gültige Werte an!\nGültige Werte: Zahlen von 1 bis 20");
             return;
         }

@@ -215,8 +215,11 @@ let createListButton = document.getElementById("create-list")
 if (createListButton){
     createListButton.onclick = () => {
         let inputElement = document.getElementById("own-list") as HTMLInputElement
-        myList = (inputElement.value.split(",").map(numStr => parseFloat(numStr)))
-        if (!checkPattern(myList, new RegExp(/^([1-9]|[1][0-9])(,\s*[1-9]|[1][0-9])*$/))) {
+        // replace/remove all whitespaces, split at "," , parse the input into array of floats
+        myList = (inputElement.value.replace(/\s/g,'').split(",").map(numStr => parseFloat(numStr)))
+        // old regex string ([1-9]|[1][0-9])(,\s*[1-9]|[1][0-9])*
+        if (!checkPattern(myList, new RegExp(/^([1-9]|(1[0-9])|20)$/))) {
+            // TODO entweder regex oder alert fixen. eingabe nimmt zahlen von 1-9 nicht 1-20
             alert("Bitte geben Sie gültige Werte an!\nGültige Werte: Zahlen von 1 bis 20")
             return
         }
