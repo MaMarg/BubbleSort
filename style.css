@@ -15,6 +15,10 @@ div {
     margin-top: 10px;
 }
 
+.container {
+    margin: 10px;
+}
+
 .chose-bubble_sort-steps {
     text-align: center;
 }
