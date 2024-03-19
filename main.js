@@ -1,5 +1,7 @@
 var currentStep = 0;
 var amountPasses = 0;
+var currentLength = 0;
+var swapped = false;
 var BubbleSortVaraints = /** @class */ (function () {
     function BubbleSortVaraints() {
         this.sorting = false;
@@ -56,14 +58,82 @@ var BubbleSortVaraints = /** @class */ (function () {
             else {
                 currentStep = 0;
                 canvasData.drawSticks(list);
-                //TODO disable sort+ step button because its already sorted, so no point until new list
+                switchPlayStepBtn(false);
             }
         }
         bubbleSortPass(currentStep);
     };
-    //Step Sorting Script
-    BubbleSortVaraints.prototype.bubbleSortStep = function (list) {
-        function bubbleSortStepFunction(i) {
+    //Optimized Bubblesort Script (stop if havent swapped and not checking already sorted part)
+    BubbleSortVaraints.prototype.bubbleSortShort = function (list, listLength) {
+        // set current list length
+        // use whole length if called without currentlength
+        if (listLength == 0) {
+            listLength = list.length;
+            currentLength = listLength;
+        }
+        swapped = false;
+        // reference for self
+        var self = this;
+        // tasklist to keep the started Timouts to kill them later
+        var nextTaskList = [];
+        // interrupts the outer loop if sorting is false
+        if (!self.sorting)
+            return;
+        function bubbleSortPass(i) {
+            // stop at current step
+            if (!self.sorting) {
+                currentStep = i;
+                // clear collected Timeouts
+                for (var j = 0; j < nextTaskList.length; j++) {
+                    console.log("killing tasks now");
+                    var nextTask = nextTaskList[j];
+                    clearTimeout(nextTask[0]);
+                }
+                return;
+            }
+            /* the main algorithm
+            if a an element is bigger then the following, swap them
+            the list ends with the biggest element to the far right*/
+            currentStep = i;
+            if (list[i] > list[i + 1]) {
+                var tempPos = list[i];
+                list[i] = list[i + 1];
+                list[i + 1] = tempPos;
+                // if you swapped set swapped true -> next pass will happen
+                swapped = true;
+            }
+            //draw the canvas anew with the highlight on the current step
+            canvasData.drawSticks(list);
+            //if not at the end of list yet -> call function with the next position
+            if (i < listLength - 2) {
+                var timer = setTimeout(function () {
+                    bubbleSortPass(i + 1);
+                }, 100);
+                // collect reference to kill later
+                nextTaskList.push(timer);
+                //if at the end of the list -> start a new pass
+                //only if you swapped during the last pass
+            }
+            else if ((i >= listLength - 2) && (swapped)) {
+                currentLength = listLength - 1;
+                setTimeout(function () {
+                    bubbleSortVariants.bubbleSortShort(list, currentLength);
+                }, 50);
+                currentStep = 0;
+                amountPasses = amountPasses + 1;
+                // if you are at the end and havent swapped, be done with sorting
+            }
+            else {
+                currentStep = 0;
+                canvasData.drawSticks(list);
+                switchPlayStepBtn(false);
+            }
+        }
+        bubbleSortPass(currentStep);
+    };
+    //Step Sorting Script for the basic Bubblesort
+    BubbleSortVaraints.prototype.bubbleSortFullStep = function (list) {
+        function stepFunction(i) {
             /* the main algorithm
             if a an element is bigger then the following, swap them
             the list ends with the biggest element to the far right*/
@@ -89,25 +159,52 @@ var BubbleSortVaraints = /** @class */ (function () {
             else {
                 currentStep = 0;
                 canvasData.drawSticks(list);
-                //TODO disable sort+ step button because its already sorted, so no point until new list
+                switchPlayStepBtn(false);
             }
         }
-        bubbleSortStepFunction(currentStep);
+        stepFunction(currentStep);
     };
-    BubbleSortVaraints.prototype.bubbleSortShort = function (list) {
-        var _a;
-        var listLength = list.length;
-        var swapped;
-        do {
-            swapped = false;
-            for (var i = 0; i < listLength - 1; i = i + 1) {
-                if (list[i] > list[i + 1]) {
-                    _a = [list[i + 1], list[i]], list[i] = _a[0], list[i + 1] = _a[1];
-                    swapped = true;
-                }
+    //Step Sorting Script for the Optimized Bubblesort
+    BubbleSortVaraints.prototype.bubbleSortShortStep = function (list, listLength) {
+        // if havent run a pass yet, listLength is the full length of the list
+        if (amountPasses == 0)
+            listLength = list.length;
+        // if the currentLength is 0 initialize current length 
+        //it should only be zero before the first start of sorting
+        if (currentLength == 0)
+            currentLength = list.length;
+        function stepFunction(i) {
+            /* the main algorithm
+            if a an element is bigger then the following, swap them
+            the list ends with the biggest element to the far right*/
+            if (list[i] > list[i + 1]) {
+                var tempPos = list[i];
+                list[i] = list[i + 1];
+                list[i + 1] = tempPos;
+                // if you swapped set swapped true -> next pass will happen
+                swapped = true;
             }
-            listLength = listLength - 1;
-        } while (swapped);
+            //draw the canvas anew with the highlight on the current step
+            canvasData.drawSticks(list);
+            //if not at the end of unsorted area, move currentStep along
+            if (i < currentLength - 2) {
+                currentStep = i + 1;
+                //if at the end of the list and swapped in this pass -> start a new pass
+            }
+            else if ((i >= currentLength - 2) && (swapped)) {
+                currentStep = 0;
+                amountPasses = amountPasses + 1;
+                currentLength = currentLength - 1;
+                swapped = false;
+                // if you havent swapped, be done with sorting
+            }
+            else {
+                currentStep = 0;
+                canvasData.drawSticks(list);
+                switchPlayStepBtn(false);
+            }
+        }
+        stepFunction(currentStep);
     };
     return BubbleSortVaraints;
 }());
@@ -180,6 +277,15 @@ var Canvas = /** @class */ (function () {
 function checkPattern(input, pattern) {
     return pattern.test(input);
 }
+// switch PlayPauseButton and Step Button on and off
+function switchPlayStepBtn(setActive) {
+    var playPauseButton = document.getElementById("play_or_pause-sorting");
+    if (playPauseButton)
+        playPauseButton.disabled = !setActive;
+    var stepForwardButton = document.getElementById("single-step");
+    if (stepForwardButton)
+        stepForwardButton.disabled = !setActive;
+}
 var bubbleSortVariants = new BubbleSortVaraints();
 var canvasData = new Canvas();
 var list = [20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1];
@@ -192,10 +298,11 @@ if (generateListButton) {
     generateListButton.onclick = function () {
         bubbleSortVariants.sorting = false;
         currentStep = 0;
+        currentLength = 0;
+        amountPasses = 0;
         canvasData.shuffleList(list);
         chosePredefindedList = true;
         canvasData.drawSticks(list);
-        amountPasses = 0;
         // enable algorithm-select if not already
         var algorithm = document.getElementById("algorithm-select_select");
         if (algorithm) {
@@ -207,7 +314,7 @@ if (generateListButton) {
             alert("You are calling this script from the wrong place");
             return;
         }
-        // TODO enable sort + step button if not already
+        switchPlayStepBtn(true);
     };
 }
 // get new list from Input
@@ -225,15 +332,16 @@ if (createListButton) {
         }
         // old regex string ([1-9]|[1][0-9])(,\s*[1-9]|[1][0-9])*
         if (!checkPattern(myList, new RegExp(/^(?:[1-9]|(1[0-9])|20)(?:,(?:[1-9]|(1[0-9])|20))*$/))) {
-            // TODO entweder regex oder alert fixen. eingabe nimmt zahlen von 1-9 nicht 1-20
+            // TODO alert if had to clean list
             alert("Bitte geben Sie gültige Werte an!\nGültige Werte: Zahlen von 1 bis 20");
             return;
         }
         bubbleSortVariants.sorting = false;
         chosePredefindedList = false;
         currentStep = 0;
-        canvasData.drawSticks(myList);
+        currentLength = 0;
         amountPasses = 0;
+        canvasData.drawSticks(myList);
         // enable algorithm-select if not already
         var algorithm = document.getElementById("algorithm-select_select");
         if (algorithm) {
@@ -245,7 +353,7 @@ if (createListButton) {
             alert("You are calling this script from the wrong place");
             return;
         }
-        // TODO enable sort + step button if not already
+        switchPlayStepBtn(true);
     };
 }
 // play/pause button
@@ -268,28 +376,57 @@ if (playPauseButton) {
             alert("You are calling this script from the wrong place");
             return;
         }
+        // if in state play, disable step button, else enable
+        var stepForwardButton = document.getElementById("single-step");
+        if (stepForwardButton) {
+            stepForwardButton.disabled = bubbleSortVariants.sorting;
+        }
+        else {
+            alert("how did you get here? reload!");
+            return;
+        }
         // if the button was in state play, start sorting with the selected algorithm
         if (bubbleSortVariants.sorting) {
             if (algorithmValue == "bubblesort-Full") {
                 bubbleSortVariants.bubbleSortFull(chosenList);
             }
             else if (algorithmValue == "bubblesort-Short") {
-                bubbleSortVariants.bubbleSortShort(chosenList);
+                bubbleSortVariants.bubbleSortShort(chosenList, currentLength);
             }
             else {
                 alert("how?");
                 return;
             }
         }
-        // TODO disable step button if playing
     };
 }
 // single step forward button
-var singleStepButton = document.getElementById("single-step");
-if (singleStepButton) {
-    singleStepButton.onclick = function () {
+var stepForwardButton = document.getElementById("single-step");
+if (stepForwardButton) {
+    stepForwardButton.onclick = function () {
         var chosenList = chosePredefindedList ? list : myList;
-        bubbleSortVariants.bubbleSortStep(chosenList);
+        // get the selected algorithm and disable the select so it cant be changed mid-sorting
+        var algorithm = document.getElementById("algorithm-select_select");
+        if (algorithm) {
+            if (algorithm.disabled == false) {
+                algorithmValue = algorithm.value;
+                algorithm.disabled = true;
+            }
+        }
+        else {
+            alert("You are calling this script from the wrong place");
+            return;
+        }
+        if (algorithmValue == "bubblesort-Full") {
+            bubbleSortVariants.bubbleSortFullStep(chosenList);
+        }
+        else if (algorithmValue == "bubblesort-Short") {
+            bubbleSortVariants.bubbleSortShortStep(chosenList, currentLength);
+        }
+        else {
+            alert("how?");
+            return;
+        }
     };
     // TODO bubblesortstep for other algorithms
 }

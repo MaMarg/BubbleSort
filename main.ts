@@ -1,6 +1,7 @@
 let currentStep = 0;
 let amountPasses = 0;
-
+let currentLength = 0;
+let swapped = false;
 class BubbleSortVaraints {
     sorting = false
 
@@ -56,19 +57,90 @@ class BubbleSortVaraints {
             } else {
                 currentStep = 0
                 canvasData.drawSticks(list)
-                //TODO disable sort+ step button because its already sorted, so no point until new list
+                switchPlayStepBtn(false)
             }
         }
         
         bubbleSortPass(currentStep);
     }
     
-    //Step Sorting Script
-    bubbleSortStep(list: Array<number>) {
+    //Optimized Bubblesort Script (stop if havent swapped and not checking already sorted part)
+    bubbleSortShort(list: Array<number>,listLength: number) {
+        // set current list length
+        // use whole length if called without currentlength
+        if (listLength == 0){
+           listLength = list.length
+           currentLength = listLength 
+        } 
+        swapped = false
         
-        function bubbleSortStepFunction(i: number) { 
+        // reference for self
+        let self = this
+        // tasklist to keep the started Timouts to kill them later
+        let nextTaskList: Array<ReturnType<typeof setTimeout> > = []
+        // interrupts the outer loop if sorting is false
+        if (!self.sorting) return
+        
+        function bubbleSortPass(i: number) {
+            // stop at current step
+            if (!self.sorting){
+                currentStep = i
+                // clear collected Timeouts
+                for (let j=0; j < nextTaskList.length; j++){
+                    console.log("killing tasks now")
+                    let nextTask = nextTaskList[j]
+                    clearTimeout(nextTask[0])
+                }
+                return
+            } 
             
-
+            /* the main algorithm
+            if a an element is bigger then the following, swap them
+            the list ends with the biggest element to the far right*/
+            currentStep = i;
+            if (list[i] > list[i + 1]) {
+                let tempPos = list[i];
+                list[i] = list[i + 1];
+                list[i + 1] = tempPos;
+                // if you swapped set swapped true -> next pass will happen
+                swapped = true
+            }
+            //draw the canvas anew with the highlight on the current step
+            canvasData.drawSticks(list);
+            
+            //if not at the end of list yet -> call function with the next position
+            if (i < listLength - 2) {
+                let timer = setTimeout(function () {
+                    bubbleSortPass(i + 1);
+                }, 100);
+                // collect reference to kill later
+                nextTaskList.push(timer)
+            //if at the end of the list -> start a new pass
+            //only if you swapped during the last pass
+            } else if ((i >= listLength - 2) && (swapped)) {
+                currentLength = listLength - 1
+                setTimeout(function () {
+                    bubbleSortVariants.bubbleSortShort(list,currentLength);
+                }, 50);
+                currentStep = 0
+                amountPasses = amountPasses + 1
+            // if you are at the end and havent swapped, be done with sorting
+            } else {
+                currentStep = 0
+                canvasData.drawSticks(list)
+                switchPlayStepBtn(false)
+            }
+        }
+        
+        bubbleSortPass(currentStep);
+    }
+    
+    //Step Sorting Script for the basic Bubblesort
+    bubbleSortFullStep(list: Array<number>) {
+        
+        function stepFunction(i: number) { 
+            
+            
             /* the main algorithm
             if a an element is bigger then the following, swap them
             the list ends with the biggest element to the far right*/
@@ -95,27 +167,58 @@ class BubbleSortVaraints {
             } else {
                 currentStep = 0
                 canvasData.drawSticks(list)
-                //TODO disable sort+ step button because its already sorted, so no point until new list
+                switchPlayStepBtn(false)
             }
         }
 
         
-        bubbleSortStepFunction(currentStep);
+        stepFunction(currentStep);
     }
 
-    bubbleSortShort(list: Array<number>) {
-        let listLength = list.length
-        let swapped: boolean
-        do {
-            swapped = false;
-            for (let i = 0; i < listLength - 1; i = i + 1) {
-                if (list[i] > list[i + 1]) {
-                    [list[i], list[i + 1]] = [list[i + 1], list[i]]
-                    swapped = true;
-                }
+    //Step Sorting Script for the Optimized Bubblesort
+    bubbleSortShortStep(list: Array<number>, listLength : number) {
+        // if havent run a pass yet, listLength is the full length of the list
+        if (amountPasses == 0) listLength = list.length
+        // if the currentLength is 0 initialize current length 
+        //it should only be zero before the first start of sorting
+        if (currentLength == 0) currentLength = list.length
+
+        function stepFunction(i: number) { 
+            
+            
+            /* the main algorithm
+            if a an element is bigger then the following, swap them
+            the list ends with the biggest element to the far right*/
+            if (list[i] > list[i + 1]) {
+                let tempPos = list[i];
+                list[i] = list[i + 1];
+                list[i + 1] = tempPos;
+                // if you swapped set swapped true -> next pass will happen
+                swapped = true
             }
-            listLength = listLength - 1;
-        } while (swapped);
+            //draw the canvas anew with the highlight on the current step
+            canvasData.drawSticks(list);
+            
+            //if not at the end of unsorted area, move currentStep along
+            if (i < currentLength - 2) {
+                currentStep = i + 1
+            //if at the end of the list and swapped in this pass -> start a new pass
+            } else if ((i >= currentLength - 2) && (swapped)) {
+                currentStep = 0
+                amountPasses = amountPasses + 1 
+                currentLength = currentLength - 1
+                swapped = false
+
+            // if you havent swapped, be done with sorting
+            } else {
+                currentStep = 0
+                canvasData.drawSticks(list)
+                switchPlayStepBtn(false)
+            }
+        }
+
+        
+        stepFunction(currentStep);
     }
 }
 
@@ -194,6 +297,15 @@ function checkPattern(input: any, pattern: RegExp) {
     return pattern.test(input);
 }
 
+// switch PlayPauseButton and Step Button on and off
+function switchPlayStepBtn(setActive: boolean){
+    let playPauseButton= document.getElementById("play_or_pause-sorting") as HTMLButtonElement
+    if (playPauseButton) playPauseButton.disabled = !setActive
+    let stepForwardButton= document.getElementById("single-step") as HTMLButtonElement
+    if (stepForwardButton) stepForwardButton.disabled = !setActive
+}
+
+
 let bubbleSortVariants = new BubbleSortVaraints()
 let canvasData = new Canvas()
 let list = [20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
@@ -208,10 +320,11 @@ if (generateListButton){
     generateListButton.onclick = () => {
         bubbleSortVariants.sorting = false
         currentStep = 0
+        currentLength = 0
+        amountPasses = 0
         canvasData.shuffleList(list)
         chosePredefindedList = true
         canvasData.drawSticks(list)
-        amountPasses = 0
 
         // enable algorithm-select if not already
         let algorithm = document.getElementById("algorithm-select_select") as HTMLSelectElement
@@ -223,8 +336,7 @@ if (generateListButton){
             alert("You are calling this script from the wrong place")
             return
         }
-        // TODO enable sort + step button if not already
-        
+        switchPlayStepBtn(true)
     }
 }
 
@@ -252,8 +364,9 @@ if (createListButton){
         bubbleSortVariants.sorting = false
         chosePredefindedList = false
         currentStep = 0
-        canvasData.drawSticks(myList)
+        currentLength = 0
         amountPasses = 0
+        canvasData.drawSticks(myList)
 
         // enable algorithm-select if not already
         let algorithm = document.getElementById("algorithm-select_select") as HTMLSelectElement
@@ -265,7 +378,7 @@ if (createListButton){
             alert("You are calling this script from the wrong place")
             return
         }
-        // TODO enable sort + step button if not already
+        switchPlayStepBtn(true)
     }
 }
 
@@ -288,27 +401,54 @@ if (playPauseButton){
             alert("You are calling this script from the wrong place")
             return
         }
+
+        // if in state play, disable step button, else enable
+        let stepForwardButton = document.getElementById("single-step") as HTMLButtonElement
+        if (stepForwardButton){
+            stepForwardButton.disabled = bubbleSortVariants.sorting
+        } else {
+            alert("how did you get here? reload!")
+            return
+        }
+
         // if the button was in state play, start sorting with the selected algorithm
         if (bubbleSortVariants.sorting) {
             if (algorithmValue == "bubblesort-Full"){
                 bubbleSortVariants.bubbleSortFull(chosenList)
             } else if (algorithmValue == "bubblesort-Short"){
-                bubbleSortVariants.bubbleSortShort(chosenList)
+                bubbleSortVariants.bubbleSortShort(chosenList,currentLength)
             } else {
                 alert("how?")
                 return
             }
         }
-        // TODO disable step button if playing
     }
 }
 
 // single step forward button
-let  singleStepButton = document.getElementById("single-step")
-if (singleStepButton){
-    singleStepButton.onclick = () => {
+let  stepForwardButton = document.getElementById("single-step")
+if (stepForwardButton){
+    stepForwardButton.onclick = () => {
         let chosenList = chosePredefindedList ? list : myList
-        bubbleSortVariants.bubbleSortStep(chosenList)
+        // get the selected algorithm and disable the select so it cant be changed mid-sorting
+        let algorithm = document.getElementById("algorithm-select_select") as HTMLSelectElement
+        if (algorithm){
+            if (algorithm.disabled == false){
+                algorithmValue = algorithm.value
+                algorithm.disabled = true
+            }
+        } else {
+            alert("You are calling this script from the wrong place")
+            return
+        }
+        if (algorithmValue == "bubblesort-Full"){
+            bubbleSortVariants.bubbleSortFullStep(chosenList)
+        } else if (algorithmValue == "bubblesort-Short"){
+            bubbleSortVariants.bubbleSortShortStep(chosenList,currentLength)
+        } else {
+            alert("how?")
+            return
+        }
     }
     // TODO bubblesortstep for other algorithms
 }
