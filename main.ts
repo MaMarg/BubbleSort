@@ -145,8 +145,7 @@ class Canvas {
             this.canvasContext.clearRect(0, 0, this.canvas.width, this.canvas.height)
             for (let i = 0; i < list.length; i++) {
                 
-                // calculated dynamical from canvas width, stick width is no more than twice stick height so it doesnt look to stupid
-                // TODO limit
+                // calculated dynamical from canvas width
                 // ratio is optimal for stick width = 20 at 700
                 let ratioStickWidth = this.stickWidth / 700
                 //similarly the padding
@@ -164,11 +163,14 @@ class Canvas {
                 this.canvasContext.beginPath()
                 // draw the stick
                 // canvas 0,0 is top left so
-                // y coordinate is canvas height - text height - height of the stick (test height is the same as the width)
+                // y coordinate is canvas height - text height - height of the stick (text height is the same as the width)
                 // ratios multiplied for different canvas sizes
                 this.canvasContext.rect(stickX + (this.canvas.width * ratioPadding), this.canvas.height - stickLength - (ratioStickWidth * this.canvas.width), this.canvas.width * ratioStickWidth, stickLength)
-                if (i == currentStep || i - 1 == currentStep) {
+                //highlight the current step in red and the following stick in less
+                if (i == currentStep) {
                     this.canvasContext.fillStyle = "#801010"
+                } else if (i - 1 == currentStep){
+                    this.canvasContext.fillStyle = "#de6040"
                 } else {
                     this.canvasContext.fillStyle = "#808080"
                 }
@@ -197,7 +199,10 @@ let canvasData = new Canvas()
 let list = [20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
 let chosePredefindedList: boolean
 let myList: number[]
+let algorithmValue = "bubblesort-Full"
 
+
+// Generate new shuffled default list (1-20)
 let generateListButton = document.getElementById("generate-list")
 if (generateListButton){
     generateListButton.onclick = () => {
@@ -207,19 +212,39 @@ if (generateListButton){
         chosePredefindedList = true
         canvasData.drawSticks(list)
         amountPasses = 0
+
+        // enable algorithm-select if not already
+        let algorithm = document.getElementById("algorithm-select_select") as HTMLSelectElement
+        if (algorithm){
+            if (algorithm.disabled == true){
+                algorithm.disabled = false
+            }
+        } else {
+            alert("You are calling this script from the wrong place")
+            return
+        }
         // TODO enable sort + step button if not already
+        
     }
 }
-    
+
+
+// get new list from Input
 let createListButton = document.getElementById("create-list")
 if (createListButton){
     createListButton.onclick = () => {
         let inputElement = document.getElementById("own-list") as HTMLInputElement
         // replace/remove all whitespaces, split at "," , parse the input into array of floats
         myList = (inputElement.value.replace(/\s/g,'').split(",").map(numStr => parseFloat(numStr)))
+        for (let i = myList.length - 1; i >=0; i--){
+            if (isNaN(myList[i])){
+                myList.splice(i, 1)
+            }
+        // TODO list length begrenzen
+        }
         // old regex string ([1-9]|[1][0-9])(,\s*[1-9]|[1][0-9])*
-        if (!checkPattern(myList, new RegExp(/^([1-9]|(1[0-9])|20)$/))) {
-            // TODO entweder regex oder alert fixen. eingabe nimmt zahlen von 1-9 nicht 1-20
+        if (!checkPattern(myList, new RegExp(/^(?:[1-9]|(1[0-9])|20)(?:,(?:[1-9]|(1[0-9])|20))*$/))) {
+            // TODO alert if had to clean list
             alert("Bitte geben Sie gültige Werte an!\nGültige Werte: Zahlen von 1 bis 20")
             return
         }
@@ -229,27 +254,62 @@ if (createListButton){
         currentStep = 0
         canvasData.drawSticks(myList)
         amountPasses = 0
+
+        // enable algorithm-select if not already
+        let algorithm = document.getElementById("algorithm-select_select") as HTMLSelectElement
+        if (algorithm){
+            if (algorithm.disabled == true){
+                algorithm.disabled = false
+            }
+        } else {
+            alert("You are calling this script from the wrong place")
+            return
+        }
         // TODO enable sort + step button if not already
     }
 }
 
+// play/pause button
 let playPauseButton = document.getElementById("play_or_pause-sorting")
 if (playPauseButton){
     playPauseButton.onclick = () => {
+        // select the right list
         let chosenList = chosePredefindedList ? list : myList
+        // switch the sorting state
         bubbleSortVariants.sorting = !bubbleSortVariants.sorting
+        // get the selected algorithm and disable the select so it cant be changed mid-sorting
+        let algorithm = document.getElementById("algorithm-select_select") as HTMLSelectElement
+        if (algorithm){
+            if (algorithm.disabled == false){
+                algorithmValue = algorithm.value
+                algorithm.disabled = true
+            }
+        } else {
+            alert("You are calling this script from the wrong place")
+            return
+        }
+        // if the button was in state play, start sorting with the selected algorithm
         if (bubbleSortVariants.sorting) {
-            bubbleSortVariants.bubbleSortFull(chosenList)
+            if (algorithmValue == "bubblesort-Full"){
+                bubbleSortVariants.bubbleSortFull(chosenList)
+            } else if (algorithmValue == "bubblesort-Short"){
+                bubbleSortVariants.bubbleSortShort(chosenList)
+            } else {
+                alert("how?")
+                return
+            }
         }
         // TODO disable step button if playing
     }
 }
 
+// single step forward button
 let  singleStepButton = document.getElementById("single-step")
 if (singleStepButton){
     singleStepButton.onclick = () => {
         let chosenList = chosePredefindedList ? list : myList
         bubbleSortVariants.bubbleSortStep(chosenList)
     }
+    // TODO bubblesortstep for other algorithms
 }
     
