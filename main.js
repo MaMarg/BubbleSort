@@ -182,7 +182,7 @@ function checkPattern(input, pattern) {
 }
 var bubbleSortVariants = new BubbleSortVaraints();
 var canvasData = new Canvas();
-var list = [20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1];
+var list = [];
 var chosePredefindedList;
 var myList;
 var algorithmValue = "bubblesort-Full";
@@ -192,6 +192,18 @@ if (generateListButton) {
     generateListButton.onclick = function () {
         bubbleSortVariants.sorting = false;
         currentStep = 0;
+        list.length = 0;
+        var inputNumber = document.getElementById("array_length");
+        var listLength = parseInt(inputNumber.value);
+        if (!checkPattern(listLength, new RegExp(/^(1[0-9]|[5-9]|20)$/))) {
+            alert("Bitte geben Sie gültige Werte an!\nGültige Werte: Zahlen von 5 bis 20");
+            return;
+        }
+        for (var i = 1; i <= listLength + 1; i++) {
+            if (list.length < listLength) {
+                list.push(i);
+            }
+        }
         canvasData.shuffleList(list);
         chosePredefindedList = true;
         canvasData.drawSticks(list);
@@ -225,7 +237,7 @@ if (createListButton) {
         }
         // old regex string ([1-9]|[1][0-9])(,\s*[1-9]|[1][0-9])*
         if (!checkPattern(myList, new RegExp(/^(?:[1-9]|(1[0-9])|20)(?:,(?:[1-9]|(1[0-9])|20))*$/))) {
-            // TODO entweder regex oder alert fixen. eingabe nimmt zahlen von 1-9 nicht 1-20
+            // TODO alert if had to clean list
             alert("Bitte geben Sie gültige Werte an!\nGültige Werte: Zahlen von 1 bis 20");
             return;
         }
@@ -252,6 +264,7 @@ if (createListButton) {
 var playPauseButton = document.getElementById("play_or_pause-sorting");
 if (playPauseButton) {
     playPauseButton.onclick = function () {
+        playPauseButton.innerHTML = bubbleSortVariants.sorting ? "<i class=\"fas fa-play\"></i>" : "<i class=\"fas fa-pause\"></i>";
         // select the right list
         var chosenList = chosePredefindedList ? list : myList;
         // switch the sorting state

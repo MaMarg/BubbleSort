@@ -31,10 +31,14 @@ div {
     margin-top: 5px;
 }
 
-.list-choice {
-    margin-top: 50px;
+.algorithm-choice {
+    margin-bottom: 50px;
 }
 
 .canvas-graphic {
     text-align: center;
+}
+
+#define-list-length {
+    width: auto;
 }

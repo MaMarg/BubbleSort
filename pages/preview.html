@@ -10,23 +10,36 @@
 </head>
 <body>
 <div class="container">
+    <div class="go-back">
+        <a class="btn btn-link" onclick="history.back()">Zurück</a>
+    </div>
+
     <div class="title">
         <h1>Sortieralgorithmen Simulation</h1>
-        <select disabled name="bubble_sort_variants" id="bubble_sort_selectors">
-            <option value="bubble_sort_full">Einfacher Bubblesort</option>
-            <option value="bubble_sort_short">Erweiterter Bubblesort</option>
-        </select>
+    </div>
+
+    <div class="algorithm-choice">
+        <p>Wähle die Algorithmen:</p>
+        <div class="algorithm-options">
+            <input class="form-check-input" type="checkbox" name="simple-bubblesort" id="simple-bubblesort">
+            <label for="simple-bubblesort">Einfacher Bubblesort</label><br>
+            <input class="form-check-input" type="checkbox" name="optimized-bubblesort" id="optimized-bubblesort">
+            <label for="optimized-bubblesort">Optimierter Bubblesort</label><br>
+            <input class="form-check-input" type="checkbox" name="insertionsort" id="insertionsort">
+            <label for="insertionsort">Insertion-Sort</label>
+        </div>
     </div>
 
     <div class="define_array">
-        <input disabled type="number" name="array_length" id="" placeholder="Listengröße">
-        <button class="btn btn-dark" id="generate-list">Generiere Liste</button>
+        <label for="array_length">Bestimme die Länge des Arrays: </label>
+        <input class="form-control-sm" type="number" name="array_length" id="array_length"
+               style="min-width: 175px; margin-left: 10px" placeholder="Listengröße" min="10" max="1000">
+        <button class="btn btn-dark btn-sm" style="margin-left: 10px" id="generate-list">Starte Sortierverfahren
+        </button>
     </div>
 
-    <div class="show-graphics">
-        <canvas id="canvas-bubblesort" width="700px" height="300px"></canvas>
-        <!-- TODO: Images -->
-        <button class="btn btn-dark" id="play_or_pause-sorting">Pause/Resume</button>
+    <div class="display-time">
+        <p></p>
     </div>
 </div>
 
