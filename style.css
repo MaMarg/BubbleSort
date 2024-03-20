@@ -42,3 +42,19 @@ div {
 #define-list-length {
     width: auto;
 }
+
+.display-time {
+    margin-top: 70px;
+}
+
+#duration-simple-bubblesort {
+    display: none;
+}
+
+#duration-optimized-bubblesort {
+    display: none;
+}
+
+#duration-insertion-sort {
+    display: none;
+}
