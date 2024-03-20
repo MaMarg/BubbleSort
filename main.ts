@@ -229,6 +229,7 @@ class Canvas {
     stickBaseLength = 10
     stickPadding = 2
 
+    // shuffles the values in the default list
     shuffleList(list: number[]) {
         let currentIndex = list.length,
             temporaryValue, randomIndex;
@@ -243,6 +244,7 @@ class Canvas {
         }
     }
 
+    // draws the canvas with the hightlighted sticks
     drawSticks(list: number[], sorted?: boolean, unSorted?:boolean) {
         if (this.canvasContext){
             this.canvasContext.clearRect(0, 0, this.canvas.width, this.canvas.height)
@@ -303,6 +305,11 @@ class Canvas {
         } else {
             alert("You are calling this script from the wrong place")
         }
+    }
+
+    // draws the descriptor for the current step for BubblesortFull
+    drawTextBubblesortFull(list: number[], sorted?: boolean, unSorted?: boolean) {
+        //paragraph = document.getElementById("highlighted-text") as HTMLParagraphElement
     }
 }
 
