@@ -6,7 +6,12 @@ class BubbleSortVaraints {
     sorting = false
 
     //Full Sorting Script
-    bubbleSortFull(list: Array<number>) {
+    bubbleSortFull(list: Array<number>, listLength:number) {
+
+        if (listLength == 0){
+            listLength = list.length
+            currentLength = listLength
+        }
         // reference to use class property inside of the functions
         let self = this;
         // tasklist to keep the started Timouts to kill them later
@@ -37,10 +42,10 @@ class BubbleSortVaraints {
                 list[i + 1] = tempPos;
             }
             //draw the canvas anew with the highlight on the current step
-            canvasData.drawSticks(list, false, true);
+            canvasData.drawSticks(list);
             
             //if not at the end of list yet -> call function with the next position
-            if (i < list.length - 2) {
+            if (i < listLength - 2) {
                 let timer = setTimeout(function () {
                     bubbleSortPass(i + 1);
                 }, 100);
@@ -48,9 +53,10 @@ class BubbleSortVaraints {
                 nextTaskList.push(timer)
                 //if at the end of the list -> start a new pass
                 //dont make a new one if you already made list.length - 1 amount of passes
-            } else if ((i >= list.length - 2) && (amountPasses < list.length - 1 )) {
+            } else if ((i >= listLength - 2) && (amountPasses < list.length - 1 )) {
+                currentLength = listLength - 1
                 setTimeout(function () {
-                    bubbleSortVariants.bubbleSortFull(list);
+                    bubbleSortVariants.bubbleSortFull(list, currentLength);
                 }, 50);
                 currentStep = 0
                 amountPasses = amountPasses + 1 
@@ -136,8 +142,13 @@ class BubbleSortVaraints {
     }
     
     //Step Sorting Script for the basic Bubblesort
-    bubbleSortFullStep(list: Array<number>) {
-        
+    bubbleSortFullStep(list: Array<number>, listLength : number) {
+        // if havent run a pass yet, listLength is the full length of the list
+        if (amountPasses == 0) listLength = list.length
+        // if the currentLength is 0 initialize current length 
+        //it should only be zero before the first start of sorting
+        if (currentLength == 0) currentLength = list.length
+
         function stepFunction(i: number) { 
             
             
@@ -150,18 +161,17 @@ class BubbleSortVaraints {
                 list[i + 1] = tempPos;
             }
             //draw the canvas anew with the highlight on the current step
-            canvasData.drawSticks(list, false, true);
+            canvasData.drawSticks(list);
             
             //if not at the end of list yet move currentStep along
-            if (i < list.length - 2) {
+            if (i < currentLength - 2) {
                 currentStep = i + 1
-
             //if at the end of the list -> start a new pass
             //dont make a new one if you already made list.length - 1 amount of passes
-            } else if ((i >= list.length - 2) && (amountPasses < list.length - 1 )) {
+            } else if ((i >= currentLength - 2) && (amountPasses < list.length - 1 )) {
                 currentStep = 0
-                amountPasses = amountPasses + 1 
-
+                amountPasses = amountPasses + 1
+                currentLength = currentLength - 1 
             // if already made list.length -1 amount of passes
             // be done with sorting
             } else {
@@ -222,9 +232,12 @@ class BubbleSortVaraints {
     }
 }
 
+
+//this class contains the drawing / optical bits
 class Canvas {
     canvas = document.getElementById("canvas-bubblesort") as HTMLCanvasElement
     canvasContext = this.canvas.getContext("2d")
+    paragraph = document.getElementById("highlighted-text") as HTMLParagraphElement
     stickWidth = 20
     stickBaseLength = 10
     stickPadding = 2
@@ -275,7 +288,7 @@ class Canvas {
                 // highlight the current step in red and the following stick in orange
                 // everything else is gray
                 // if its done sorting everything is green
-                // the already sorted part in optimized bubblesort is green too
+                // the already sorted part  is green too
 
                 //sorted parts in green
                 let unsortedLength = (unSorted) ? list.length : currentLength
@@ -307,9 +320,10 @@ class Canvas {
         }
     }
 
+    // TODO
     // draws the descriptor for the current step for BubblesortFull
     drawTextBubblesortFull(list: number[], sorted?: boolean, unSorted?: boolean) {
-        //paragraph = document.getElementById("highlighted-text") as HTMLParagraphElement
+        //
     }
 }
 
@@ -427,14 +441,14 @@ if (playPauseButton){
         if (stepForwardButton){
             stepForwardButton.disabled = bubbleSortVariants.sorting
         } else {
-            alert("how did you get here? reload!")
+            alert("how did you get here?")
             return
         }
 
         // if the button was in state play, start sorting with the selected algorithm
         if (bubbleSortVariants.sorting) {
             if (algorithmValue == "bubblesort-Full"){
-                bubbleSortVariants.bubbleSortFull(chosenList)
+                bubbleSortVariants.bubbleSortFull(chosenList,currentLength)
             } else if (algorithmValue == "bubblesort-Short"){
                 bubbleSortVariants.bubbleSortShort(chosenList,currentLength)
             } else {
@@ -462,7 +476,7 @@ if (stepForwardButton){
             return
         }
         if (algorithmValue == "bubblesort-Full"){
-            bubbleSortVariants.bubbleSortFullStep(chosenList)
+            bubbleSortVariants.bubbleSortFullStep(chosenList,currentLength)
         } else if (algorithmValue == "bubblesort-Short"){
             bubbleSortVariants.bubbleSortShortStep(chosenList,currentLength)
         } else {
@@ -473,6 +487,3 @@ if (stepForwardButton){
     // TODO bubblesortstep for other algorithms
 }
     
-
-// TODO green when done
-//already sorted part and whole if complete

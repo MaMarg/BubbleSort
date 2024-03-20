@@ -7,7 +7,11 @@ var BubbleSortVaraints = /** @class */ (function () {
         this.sorting = false;
     }
     //Full Sorting Script
-    BubbleSortVaraints.prototype.bubbleSortFull = function (list) {
+    BubbleSortVaraints.prototype.bubbleSortFull = function (list, listLength) {
+        if (listLength == 0) {
+            listLength = list.length;
+            currentLength = listLength;
+        }
         // reference to use class property inside of the functions
         var self = this;
         // tasklist to keep the started Timouts to kill them later
@@ -37,9 +41,9 @@ var BubbleSortVaraints = /** @class */ (function () {
                 list[i + 1] = tempPos;
             }
             //draw the canvas anew with the highlight on the current step
-            canvasData.drawSticks(list, false, true);
+            canvasData.drawSticks(list);
             //if not at the end of list yet -> call function with the next position
-            if (i < list.length - 2) {
+            if (i < listLength - 2) {
                 var timer = setTimeout(function () {
                     bubbleSortPass(i + 1);
                 }, 100);
@@ -48,9 +52,10 @@ var BubbleSortVaraints = /** @class */ (function () {
                 //if at the end of the list -> start a new pass
                 //dont make a new one if you already made list.length - 1 amount of passes
             }
-            else if ((i >= list.length - 2) && (amountPasses < list.length - 1)) {
+            else if ((i >= listLength - 2) && (amountPasses < list.length - 1)) {
+                currentLength = listLength - 1;
                 setTimeout(function () {
-                    bubbleSortVariants.bubbleSortFull(list);
+                    bubbleSortVariants.bubbleSortFull(list, currentLength);
                 }, 50);
                 currentStep = 0;
                 amountPasses = amountPasses + 1;
@@ -132,7 +137,14 @@ var BubbleSortVaraints = /** @class */ (function () {
         bubbleSortPass(currentStep);
     };
     //Step Sorting Script for the basic Bubblesort
-    BubbleSortVaraints.prototype.bubbleSortFullStep = function (list) {
+    BubbleSortVaraints.prototype.bubbleSortFullStep = function (list, listLength) {
+        // if havent run a pass yet, listLength is the full length of the list
+        if (amountPasses == 0)
+            listLength = list.length;
+        // if the currentLength is 0 initialize current length 
+        //it should only be zero before the first start of sorting
+        if (currentLength == 0)
+            currentLength = list.length;
         function stepFunction(i) {
             /* the main algorithm
             if a an element is bigger then the following, swap them
@@ -143,16 +155,17 @@ var BubbleSortVaraints = /** @class */ (function () {
                 list[i + 1] = tempPos;
             }
             //draw the canvas anew with the highlight on the current step
-            canvasData.drawSticks(list, false, true);
+            canvasData.drawSticks(list);
             //if not at the end of list yet move currentStep along
-            if (i < list.length - 2) {
+            if (i < currentLength - 2) {
                 currentStep = i + 1;
                 //if at the end of the list -> start a new pass
                 //dont make a new one if you already made list.length - 1 amount of passes
             }
-            else if ((i >= list.length - 2) && (amountPasses < list.length - 1)) {
+            else if ((i >= currentLength - 2) && (amountPasses < list.length - 1)) {
                 currentStep = 0;
                 amountPasses = amountPasses + 1;
+                currentLength = currentLength - 1;
                 // if already made list.length -1 amount of passes
                 // be done with sorting
             }
@@ -208,14 +221,17 @@ var BubbleSortVaraints = /** @class */ (function () {
     };
     return BubbleSortVaraints;
 }());
+//this class contains the drawing / optical bits
 var Canvas = /** @class */ (function () {
     function Canvas() {
         this.canvas = document.getElementById("canvas-bubblesort");
         this.canvasContext = this.canvas.getContext("2d");
+        this.paragraph = document.getElementById("highlighted-text");
         this.stickWidth = 20;
         this.stickBaseLength = 10;
         this.stickPadding = 2;
     }
+    // shuffles the values in the default list
     Canvas.prototype.shuffleList = function (list) {
         var currentIndex = list.length, temporaryValue, randomIndex;
         while (0 !== currentIndex) {
@@ -226,6 +242,7 @@ var Canvas = /** @class */ (function () {
             list[randomIndex] = temporaryValue;
         }
     };
+    // draws the canvas with the hightlighted sticks
     Canvas.prototype.drawSticks = function (list, sorted, unSorted) {
         if (this.canvasContext) {
             this.canvasContext.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -252,7 +269,7 @@ var Canvas = /** @class */ (function () {
                 // highlight the current step in red and the following stick in orange
                 // everything else is gray
                 // if its done sorting everything is green
-                // the already sorted part in optimized bubblesort is green too
+                // the already sorted part  is green too
                 //sorted parts in green
                 var unsortedLength = (unSorted) ? list.length : currentLength;
                 if ((sorted) || (i >= unsortedLength)) {
@@ -283,6 +300,11 @@ var Canvas = /** @class */ (function () {
         else {
             alert("You are calling this script from the wrong place");
         }
+    };
+    // TODO
+    // draws the descriptor for the current step for BubblesortFull
+    Canvas.prototype.drawTextBubblesortFull = function (list, sorted, unSorted) {
+        //
     };
     return Canvas;
 }());
@@ -394,13 +416,13 @@ if (playPauseButton) {
             stepForwardButton.disabled = bubbleSortVariants.sorting;
         }
         else {
-            alert("how did you get here? reload!");
+            alert("how did you get here?");
             return;
         }
         // if the button was in state play, start sorting with the selected algorithm
         if (bubbleSortVariants.sorting) {
             if (algorithmValue == "bubblesort-Full") {
-                bubbleSortVariants.bubbleSortFull(chosenList);
+                bubbleSortVariants.bubbleSortFull(chosenList, currentLength);
             }
             else if (algorithmValue == "bubblesort-Short") {
                 bubbleSortVariants.bubbleSortShort(chosenList, currentLength);
@@ -430,7 +452,7 @@ if (stepForwardButton) {
             return;
         }
         if (algorithmValue == "bubblesort-Full") {
-            bubbleSortVariants.bubbleSortFullStep(chosenList);
+            bubbleSortVariants.bubbleSortFullStep(chosenList, currentLength);
         }
         else if (algorithmValue == "bubblesort-Short") {
             bubbleSortVariants.bubbleSortShortStep(chosenList, currentLength);
@@ -442,5 +464,3 @@ if (stepForwardButton) {
     };
     // TODO bubblesortstep for other algorithms
 }
-// TODO green when done
-//already sorted part and whole if complete
