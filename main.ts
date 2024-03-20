@@ -37,7 +37,7 @@ class BubbleSortVaraints {
                 list[i + 1] = tempPos;
             }
             //draw the canvas anew with the highlight on the current step
-            canvasData.drawSticks(list);
+            canvasData.drawSticks(list, false, true);
             
             //if not at the end of list yet -> call function with the next position
             if (i < list.length - 2) {
@@ -56,7 +56,7 @@ class BubbleSortVaraints {
                 amountPasses = amountPasses + 1 
             } else {
                 currentStep = 0
-                canvasData.drawSticks(list)
+                canvasData.drawSticks(list, true)
                 switchPlayStepBtn(false)
             }
         }
@@ -127,7 +127,7 @@ class BubbleSortVaraints {
             // if you are at the end and havent swapped, be done with sorting
             } else {
                 currentStep = 0
-                canvasData.drawSticks(list)
+                canvasData.drawSticks(list, true)
                 switchPlayStepBtn(false)
             }
         }
@@ -150,7 +150,7 @@ class BubbleSortVaraints {
                 list[i + 1] = tempPos;
             }
             //draw the canvas anew with the highlight on the current step
-            canvasData.drawSticks(list);
+            canvasData.drawSticks(list, false, true);
             
             //if not at the end of list yet move currentStep along
             if (i < list.length - 2) {
@@ -166,7 +166,7 @@ class BubbleSortVaraints {
             // be done with sorting
             } else {
                 currentStep = 0
-                canvasData.drawSticks(list)
+                canvasData.drawSticks(list, true)
                 switchPlayStepBtn(false)
             }
         }
@@ -212,7 +212,7 @@ class BubbleSortVaraints {
             // if you havent swapped, be done with sorting
             } else {
                 currentStep = 0
-                canvasData.drawSticks(list)
+                canvasData.drawSticks(list, true)
                 switchPlayStepBtn(false)
             }
         }
@@ -243,7 +243,7 @@ class Canvas {
         }
     }
 
-    drawSticks(list: number[]) {
+    drawSticks(list: number[], sorted?: boolean, unSorted?:boolean) {
         if (this.canvasContext){
             this.canvasContext.clearRect(0, 0, this.canvas.width, this.canvas.height)
             for (let i = 0; i < list.length; i++) {
@@ -269,14 +269,27 @@ class Canvas {
                 // y coordinate is canvas height - text height - height of the stick (text height is the same as the width)
                 // ratios multiplied for different canvas sizes
                 this.canvasContext.rect(stickX + (this.canvas.width * ratioPadding), this.canvas.height - stickLength - (ratioStickWidth * this.canvas.width), this.canvas.width * ratioStickWidth, stickLength)
-                //highlight the current step in red and the following stick in less
-                if (i == currentStep) {
+                // decide on stick color
+                // highlight the current step in red and the following stick in orange
+                // everything else is gray
+                // if its done sorting everything is green
+                // the already sorted part in optimized bubblesort is green too
+
+                //sorted parts in green
+                let unsortedLength = (unSorted) ? list.length : currentLength
+                if ((sorted) || (i >= unsortedLength)){
+                   this.canvasContext.fillStyle = "#106010" 
+                //stick at current position in red
+                } else if (i == currentStep) {
                     this.canvasContext.fillStyle = "#801010"
+                // stick at next position in orange
                 } else if (i - 1 == currentStep){
                     this.canvasContext.fillStyle = "#de6040"
+                // if nothing special gray
                 } else {
                     this.canvasContext.fillStyle = "#808080"
                 }
+                
                 this.canvasContext.fill()
                 this.canvasContext.closePath()
                 
@@ -324,7 +337,7 @@ if (generateListButton){
         amountPasses = 0
         canvasData.shuffleList(list)
         chosePredefindedList = true
-        canvasData.drawSticks(list)
+        canvasData.drawSticks(list, false, true)
 
         // enable algorithm-select if not already
         let algorithm = document.getElementById("algorithm-select_select") as HTMLSelectElement
@@ -366,7 +379,7 @@ if (createListButton){
         currentStep = 0
         currentLength = 0
         amountPasses = 0
-        canvasData.drawSticks(myList)
+        canvasData.drawSticks(myList, false, true)
 
         // enable algorithm-select if not already
         let algorithm = document.getElementById("algorithm-select_select") as HTMLSelectElement
@@ -453,3 +466,6 @@ if (stepForwardButton){
     // TODO bubblesortstep for other algorithms
 }
     
+
+// TODO green when done
+//already sorted part and whole if complete
