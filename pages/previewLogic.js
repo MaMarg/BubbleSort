@@ -40,25 +40,51 @@ var SortingAlgorithms = /** @class */ (function () {
         }
         return list;
     };
+    SortingAlgorithms.prototype.shuffleList = function (list) {
+        var currentIndex = list.length, temporaryValue, randomIndex;
+        while (0 !== currentIndex) {
+            randomIndex = Math.floor(Math.random() * currentIndex);
+            currentIndex -= 1;
+            temporaryValue = list[currentIndex];
+            list[currentIndex] = list[randomIndex];
+            list[randomIndex] = temporaryValue;
+        }
+    };
     return SortingAlgorithms;
 }());
+var sortingMethods = new SortingAlgorithms();
+function dateFormatter(milliseconds) {
+    return milliseconds / 1000;
+}
+function performSortAndDisplayDuration(list, htmlId, sortingMethod, sortingName) {
+    sortingMethods.shuffleList(list);
+    var paragraph = document.getElementById(htmlId);
+    if (!paragraph) {
+        console.error('Paragraph-Element nicht gefunden');
+        return;
+    }
+    var startTime = performance.now();
+    sortingMethod(list);
+    var endTime = performance.now();
+    paragraph.innerHTML = "Dauer " + sortingName + ": " + dateFormatter(endTime - startTime) + " Sekunden";
+    paragraph.style.display = "block";
+}
 document.getElementById("start-comparing-algorithms").addEventListener("click", function () {
     var list = [];
     var listLength = document.getElementById("array_length");
     for (var i = 1; i < parseInt(listLength.value) + 1; i++) {
         list.push(i);
     }
-    console.log(list);
     var simpleBubblesortCheckbox = document.getElementById("simple-bubblesort");
     if (simpleBubblesortCheckbox.checked) {
-        //alert(1)
+        performSortAndDisplayDuration(list, "duration-simple-bubblesort", sortingMethods.simpleBubbleSort, "einfacher Bubblesort");
     }
     var optimiedBubblesortCheckbox = document.getElementById("optimized-bubblesort");
     if (optimiedBubblesortCheckbox.checked) {
-        //alert(2)
+        performSortAndDisplayDuration(list, "duration-optimized-bubblesort", sortingMethods.optimizedBubblesort, "optimierter Bubblesort");
     }
     var insertionSortCheckbox = document.getElementById("insertionsort");
     if (insertionSortCheckbox.checked) {
-        //alert(3)
+        performSortAndDisplayDuration(list, "duration-insertion-sort", sortingMethods.insertionSort, "Insertion-Sort");
     }
 });

@@ -56,26 +56,45 @@ class SortingAlgorithms {
 
 let sortingMethods = new SortingAlgorithms()
 
+function dateFormatter(milliseconds: number) {
+    return milliseconds / 1000;
+}
+
+function performSortAndDisplayDuration(list: number[], htmlId: string, sortingMethod: (list: number[]) => void, sortingName: string) {
+    sortingMethods.shuffleList(list);
+    let paragraph = document.getElementById(htmlId) as HTMLParagraphElement;
+    if (!paragraph) {
+        console.error('Paragraph-Element nicht gefunden');
+        return;
+    }
+
+    let startTime = performance.now();
+    sortingMethod(list);
+    let endTime = performance.now();
+
+    paragraph.innerHTML = `Dauer ${sortingName}: ${dateFormatter(endTime - startTime)} Sekunden`;
+    paragraph.style.display = "block";
+}
+
 document.getElementById("start-comparing-algorithms").addEventListener("click", () => {
-    let list = []
+    let list: number[] = []
     let listLength = document.getElementById("array_length") as HTMLInputElement
     for (let i = 1; i < parseInt(listLength.value) + 1; i++) {
         list.push(i)
     }
-    console.log(list)
 
     let simpleBubblesortCheckbox = document.getElementById("simple-bubblesort") as HTMLInputElement
     if (simpleBubblesortCheckbox.checked) {
-        //alert(1)
+        performSortAndDisplayDuration(list, "duration-simple-bubblesort", sortingMethods.simpleBubbleSort, "einfacher Bubblesort")
     }
 
     let optimiedBubblesortCheckbox = document.getElementById("optimized-bubblesort") as HTMLInputElement
     if (optimiedBubblesortCheckbox.checked) {
-        //alert(2)
+        performSortAndDisplayDuration(list, "duration-optimized-bubblesort", sortingMethods.optimizedBubblesort, "optimierter Bubblesort")
     }
 
     let insertionSortCheckbox = document.getElementById("insertionsort") as HTMLInputElement
     if (insertionSortCheckbox.checked) {
-        //alert(3)
+        performSortAndDisplayDuration(list, "duration-insertion-sort", sortingMethods.insertionSort, "Insertion-Sort")
     }
 })
