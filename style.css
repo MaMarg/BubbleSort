@@ -58,3 +58,7 @@ div {
 #duration-insertion-sort {
     display: none;
 }
+
+.on-same-height {
+    display: flex;
+}

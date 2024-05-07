@@ -280,7 +280,6 @@ class BubbleSortVaraints {
         this.paragraph.innerHTML += `<p id="comparisonText2" align="right">Der aktuelle (${list[currentStep]}) und der nächste Wert (${list[currentStep + 1]}) werden verglichen.</p>`
         this.paragraph.innerHTML += `<p id="comparisonText3" align="right">Das <mark background-color="aqua">${(list[currentStep] > list[currentStep + 1]) ? "aktuelle" : "nächste"}</mark> Element ist größer.</p>`
         this.paragraph.innerHTML += `<p id="comparisonText4" align="right">Es wird <mark background-color="aqua">${(list[currentStep] > list[currentStep + 1]) ? "getauscht" : "nicht getauscht"}</mark>.</p>`
-
     }
 }
 
@@ -393,7 +392,7 @@ function switchPlayStepBtn(setActive: boolean){
 
 let bubbleSortVariants = new BubbleSortVaraints()
 let canvasData = new Canvas()
-let list = []
+let list = [20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
 let chosePredefindedList: boolean
 let myList: number[]
 let algorithmValue = "bubblesort-Full"
@@ -468,7 +467,7 @@ if (createListButton) {
 }
 
 // play/pause button
-let playPauseButton = document.getElementById("play_or_pause-sorting")
+let playPauseButton = document.getElementById("play_or_pause-sorting") as HTMLButtonElement
 if (playPauseButton) {
     playPauseButton.onclick = () => {
         playPauseButton.innerHTML = bubbleSortVariants.sorting ? "<i class=\"fas fa-play\"></i>" : "<i class=\"fas fa-pause\"></i>"

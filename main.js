@@ -254,16 +254,16 @@ var BubbleSortVaraints = /** @class */ (function () {
         // set text for outer loop
         this.paragraph.innerHTML = "<p id=\"outerLoopText1\" align=\"right\">for (n = A.size; n &gt; 1; n = n - 1){--&gt; die \u00E4u\u00DFere Schleife</p>";
         this.paragraph.innerHTML += "<p id=\"outerLoopText2\" align=\"right\">n ist die Anzahl der noch n\u00F6tigen Durchg\u00E4nge.</p>";
-        this.paragraph.innerHTML += "<p id=\"outerLoopText3\" align=\"right\">Aktuell ist n = <mark background-color=\"aqua\">".concat(list.length - 1 - amountPasses, "</mark>.</p>");
+        this.paragraph.innerHTML += "<p id=\"outerLoopText3\" align=\"right\">Aktuell ist n = <mark background-color=\"aqua\">" + (list.length - 1 - amountPasses) + "</mark>.</p>";
         // set text for inner loop
         this.paragraph.innerHTML += "<p id=\"innerLoopText1\" align=\"right\">for (i = 0; i &lt; n - 1; i = i + 1){--&gt; die innere Schleife</p>";
         this.paragraph.innerHTML += "<p id=\"innerLoopText2\" align=\"right\">i ist der Index des aktuellen Schritts.</p>";
-        this.paragraph.innerHTML += "<p id=\"innerLoopText3\" align=\"right\">Aktuell ist i = <mark background-color=\"aqua\">".concat(currentStep, "</mark>.</p>");
+        this.paragraph.innerHTML += "<p id=\"innerLoopText3\" align=\"right\">Aktuell ist i = <mark background-color=\"aqua\">" + currentStep + "</mark>.</p>";
         // set text for comparison
         this.paragraph.innerHTML += "<p id=\"comparisonText1\" align=\"right\">if (A[i] &gt; A[i+1]){--&gt;Vergleich der Werte</p>";
-        this.paragraph.innerHTML += "<p id=\"comparisonText2\" align=\"right\">Der aktuelle (".concat(list[currentStep], ") und der n\u00E4chste Wert (").concat(list[currentStep + 1], ") werden verglichen.</p>");
-        this.paragraph.innerHTML += "<p id=\"comparisonText3\" align=\"right\">Das <mark background-color=\"aqua\">".concat((list[currentStep] > list[currentStep + 1]) ? "aktuelle" : "nächste", "</mark> Element ist gr\u00F6\u00DFer.</p>");
-        this.paragraph.innerHTML += "<p id=\"comparisonText4\" align=\"right\">Es wird <mark background-color=\"aqua\">".concat((list[currentStep] > list[currentStep + 1]) ? "getauscht" : "nicht getauscht", "</mark>.</p>");
+        this.paragraph.innerHTML += "<p id=\"comparisonText2\" align=\"right\">Der aktuelle (" + list[currentStep] + ") und der n\u00E4chste Wert (" + list[currentStep + 1] + ") werden verglichen.</p>";
+        this.paragraph.innerHTML += "<p id=\"comparisonText3\" align=\"right\">Das <mark background-color=\"aqua\">" + ((list[currentStep] > list[currentStep + 1]) ? "aktuelle" : "nächste") + "</mark> Element ist gr\u00F6\u00DFer.</p>";
+        this.paragraph.innerHTML += "<p id=\"comparisonText4\" align=\"right\">Es wird <mark background-color=\"aqua\">" + ((list[currentStep] > list[currentStep + 1]) ? "getauscht" : "nicht getauscht") + "</mark>.</p>";
     };
     return BubbleSortVaraints;
 }());
@@ -370,7 +370,7 @@ function switchPlayStepBtn(setActive) {
 }
 var bubbleSortVariants = new BubbleSortVaraints();
 var canvasData = new Canvas();
-var list = [];
+var list = [20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1];
 var chosePredefindedList;
 var myList;
 var algorithmValue = "bubblesort-Full";
@@ -380,18 +380,6 @@ if (generateListButton) {
     generateListButton.onclick = function () {
         bubbleSortVariants.sorting = false;
         currentStep = 0;
-        list.length = 0;
-        var inputNumber = document.getElementById("array_length");
-        var listLength = parseInt(inputNumber.value);
-        if (!checkPattern(listLength, new RegExp(/^(1[0-9]|[5-9]|20)$/))) {
-            alert("Bitte geben Sie gültige Werte an!\nGültige Werte: Zahlen von 5 bis 20");
-            return;
-        }
-        for (var i = 1; i <= listLength + 1; i++) {
-            if (list.length < listLength) {
-                list.push(i);
-            }
-        }
         currentLength = 0;
         amountPasses = 0;
         canvasData.shuffleList(list);
@@ -526,7 +514,6 @@ if (stepForwardButton) {
         }
     };
 }
-// TODO drawing the switch on slow motion
 // TODO the button with the switch pseudo
 // TODO the optimised pseudo
 // TODO optics
