@@ -15,6 +15,10 @@ div {
     margin-top: 10px;
 }
 
+.container {
+    margin: 10px;
+}
+
 .chose-bubble_sort-steps {
     text-align: center;
 }
@@ -25,4 +29,32 @@ div {
 
 .algorithm-description {
     margin-top: 5px;
+}
+
+.algorithm-choice {
+    margin-bottom: 50px;
+}
+
+.canvas-graphic {
+    text-align: center;
+}
+
+#define-list-length {
+    width: auto;
+}
+
+.display-time {
+    margin-top: 70px;
+}
+
+#duration-simple-bubblesort {
+    display: none;
+}
+
+#duration-optimized-bubblesort {
+    display: none;
+}
+
+#duration-insertion-sort {
+    display: none;
 }

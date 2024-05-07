@@ -17,16 +17,16 @@ class BubbleSortVaraints {
         // reference to use class property inside of the functions
         let self = this;
         // tasklist to keep the started Timouts to kill them later
-        let nextTaskList: Array<ReturnType<typeof setTimeout> > = []
+        let nextTaskList: Array<ReturnType<typeof setTimeout>> = []
         // interrupts the outer loop if sorting is false
         if (!self.sorting) return
 
         function bubbleSortPass(i: number) {
             // stop at current step
-            if (!self.sorting){
+            if (!self.sorting) {
                 currentStep = i
                 // clear collected Timeouts
-                for (let j=0; j < nextTaskList.length; j++){
+                for (let j = 0; j < nextTaskList.length; j++) {
                     console.log("killing tasks now")
                     let nextTask = nextTaskList[j]
                     clearTimeout(nextTask[0])
@@ -34,8 +34,8 @@ class BubbleSortVaraints {
                 canvasData.drawSticks(list);
                 self.drawTextBubblesortFull(list)
                 return
-            } 
-            
+            }
+
             /* the main algorithm
             if a an element is bigger then the following, swap them
             the list ends with the biggest element to the far right*/
@@ -48,7 +48,7 @@ class BubbleSortVaraints {
 
             //draw the canvas anew with the highlight on the current step
             canvasData.drawSticks(list);
-            
+
             //if not at the end of list yet -> call function with the next position
             if (i < listLength - 2) {
                 let timer = setTimeout(function () {
@@ -64,14 +64,14 @@ class BubbleSortVaraints {
                     bubbleSortVariants.bubbleSortFull(list, currentLength);
                 }, 50);
                 currentStep = 0
-                amountPasses = amountPasses + 1 
+                amountPasses = amountPasses + 1
             } else {
                 currentStep = 0
                 canvasData.drawSticks(list, true)
                 switchPlayStepBtn(false)
             }
         }
-        
+
         bubbleSortPass(currentStep);
     }
     
@@ -254,8 +254,7 @@ class BubbleSortVaraints {
                 switchPlayStepBtn(false)
             }
         }
-
-        
+       
         stepFunction(currentStep);
     }
 
@@ -314,20 +313,20 @@ class Canvas {
         if (this.canvasContext){
             this.canvasContext.clearRect(0, 0, this.canvas.width, this.canvas.height)
             for (let i = 0; i < list.length; i++) {
-                
+
                 // calculated dynamical from canvas width
                 // ratio is optimal for stick width = 20 at 700
                 let ratioStickWidth = this.stickWidth / 700
                 //similarly the padding
                 let ratioPadding = this.stickPadding / 700
-                
+
                 // calculated dynamical from canvas height
                 // ratio is optimal for Base Length = 10 at 300 canvas height
                 let ratioStickHeight = this.stickBaseLength / 300;
-                
+
                 // x coordinate for the stick; horizontal padding + base stick width multiplied by their ratios
                 let stickX = (i * ((this.canvas.width * ratioStickWidth) + (this.canvas.width * ratioPadding)))
-                
+
                 // length of the stick; value of the stick + 1 for a base length * additional length
                 let stickLength = (list[i] + 1) * this.canvas.height * ratioStickHeight
                 this.canvasContext.beginPath()
@@ -365,7 +364,7 @@ class Canvas {
                 
                 this.canvasContext.fill()
                 this.canvasContext.closePath()
-                
+
                 // dynamical font size depending on canvas height
                 // ratio is optimal 16px size at 300 canvas hight
                 let ratioText = 16 / 300;
@@ -394,7 +393,7 @@ function switchPlayStepBtn(setActive: boolean){
 
 let bubbleSortVariants = new BubbleSortVaraints()
 let canvasData = new Canvas()
-let list = [20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
+let list = []
 let chosePredefindedList: boolean
 let myList: number[]
 let algorithmValue = "bubblesort-Full"
@@ -402,7 +401,7 @@ let algorithmValue = "bubblesort-Full"
 
 // Generate new shuffled default list (1-20)
 let generateListButton = document.getElementById("generate-list")
-if (generateListButton){
+if (generateListButton) {
     generateListButton.onclick = () => {
         bubbleSortVariants.sorting = false
         currentStep = 0
@@ -414,8 +413,8 @@ if (generateListButton){
 
         // enable algorithm-select if not already
         let algorithm = document.getElementById("algorithm-select_select") as HTMLSelectElement
-        if (algorithm){
-            if (algorithm.disabled == true){
+        if (algorithm) {
+            if (algorithm.disabled == true) {
                 algorithm.disabled = false
             }
         } else {
@@ -429,16 +428,16 @@ if (generateListButton){
 
 // get new list from Input
 let createListButton = document.getElementById("create-list")
-if (createListButton){
+if (createListButton) {
     createListButton.onclick = () => {
         let inputElement = document.getElementById("own-list") as HTMLInputElement
         // replace/remove all whitespaces, split at "," , parse the input into array of floats
-        myList = (inputElement.value.replace(/\s/g,'').split(",").map(numStr => parseFloat(numStr)))
-        for (let i = myList.length - 1; i >=0; i--){
-            if (isNaN(myList[i])){
+        myList = (inputElement.value.replace(/\s/g, '').split(",").map(numStr => parseFloat(numStr)))
+        for (let i = myList.length - 1; i >= 0; i--) {
+            if (isNaN(myList[i])) {
                 myList.splice(i, 1)
             }
-        // TODO list length begrenzen
+            // TODO list length begrenzen
         }
         // old regex string ([1-9]|[1][0-9])(,\s*[1-9]|[1][0-9])*
         if (!checkPattern(myList, new RegExp(/^(?:[1-9]|(1[0-9])|20)(?:,(?:[1-9]|(1[0-9])|20))*$/))) {
@@ -446,7 +445,7 @@ if (createListButton){
             alert("Bitte geben Sie gültige Werte an!\nGültige Werte: Zahlen von 1 bis 20")
             return
         }
-        
+
         bubbleSortVariants.sorting = false
         chosePredefindedList = false
         currentStep = 0
@@ -456,8 +455,8 @@ if (createListButton){
 
         // enable algorithm-select if not already
         let algorithm = document.getElementById("algorithm-select_select") as HTMLSelectElement
-        if (algorithm){
-            if (algorithm.disabled == true){
+        if (algorithm) {
+            if (algorithm.disabled == true) {
                 algorithm.disabled = false
             }
         } else {
@@ -470,16 +469,17 @@ if (createListButton){
 
 // play/pause button
 let playPauseButton = document.getElementById("play_or_pause-sorting")
-if (playPauseButton){
+if (playPauseButton) {
     playPauseButton.onclick = () => {
+        playPauseButton.innerHTML = bubbleSortVariants.sorting ? "<i class=\"fas fa-play\"></i>" : "<i class=\"fas fa-pause\"></i>"
         // select the right list
         let chosenList = chosePredefindedList ? list : myList
         // switch the sorting state
         bubbleSortVariants.sorting = !bubbleSortVariants.sorting
         // get the selected algorithm and disable the select so it cant be changed mid-sorting
         let algorithm = document.getElementById("algorithm-select_select") as HTMLSelectElement
-        if (algorithm){
-            if (algorithm.disabled == false){
+        if (algorithm) {
+            if (algorithm.disabled == false) {
                 algorithmValue = algorithm.value
                 algorithm.disabled = true
             }
