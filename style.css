@@ -16,6 +16,7 @@ div {
 }
 
 .container {
+    position: relative;
     margin: 10px;
 }
 
@@ -33,10 +34,6 @@ div {
 
 .algorithm-choice {
     margin-bottom: 50px;
-}
-
-.canvas-graphic {
-    text-align: center;
 }
 
 #define-list-length {
@@ -59,6 +56,8 @@ div {
     display: none;
 }
 
-.on-same-height {
-    display: flex;
+#highlighted-text {
+    position: absolute;
+    top: 30%;
+    right: 0;
 }
